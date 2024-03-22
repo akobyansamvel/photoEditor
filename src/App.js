@@ -8,6 +8,9 @@ function App() {
   const [position, setPosition] = useState({x:0,y:0});
   const fileReader = new FileReader();
   const canvasRef = useRef(null); 
+  const [imageWidth, setImageWidth] = useState(0);
+  const [imageHeight, setImageHeight] = useState(0);
+
 
   fileReader.onloadend = () => {
     setImageURL(fileReader.result);
@@ -48,29 +51,40 @@ function App() {
       canvas.width = image.width;
       canvas.height = image.height;
       context.drawImage(image, 0, 0);
+      setImageWidth(image.width); // Установка ширины изображения
+      setImageHeight(image.height); // Установка высоты изображения
     };
     image.onerror = () => {
       alert('Ошибка при загрузке изображения. Проверьте URL.');
     };
   }, [imageURL]);
   
+  
 
   return (
-    <div className="App">
-        <div className='uploader'>
-          <canvas
+    <div className='App'>
+    <div className='uploader'>
+      {image && (
+        <div className='color-info'>
+            <div className='image-size'>
+              Размер изображения: <br />
+              Ширина: {imageWidth}px, <br />
+              Высота: {imageHeight}px
+                </div>
+        <div>Координаты: <br />X: {position.x}px, <br /> Y: {position.y}px</div>
+        <div className='color'>Цвет: <br /> {color}</div>
+        <div style={{ backgroundColor: color, width: 150, height: 30, marginTop: 10 }}></div>
+      </div>
+      )}
+         <div className='test'>
+         <canvas
             ref={canvasRef}
             onMouseMove={handleMouseMove}
-            className='uploader__canvas'
-          ></canvas>
-        <div className='color-info'> 
-        <div>Координаты: X: {position.x}px, Y: {position.y}px</div>
-          <div className='color'>Цвет: {color}
-            <div style={{ backgroundColor: color,width:30, height:30,marginLeft:10}}><br/> </div>
-          </div>
-          <div >{image ? image.name : ""}</div>
-        </div>
-            <label
+            className='uploader__canvas'>
+            </canvas>
+            <div >{image ? image.name : ""}</div>
+       <div className='load'>
+       <label
             htmlFor="loader-button"
             className="uploader__button">
               Загрузить файл
@@ -80,7 +94,6 @@ function App() {
               type="file"
               className="uploader__upload-button"
               onChange={handleOnChange}/>
-        </div>
         <div className="url-uploader">
           <input
             type="text"
@@ -88,6 +101,11 @@ function App() {
             onChange={(e) => setImageURL(e.target.value)} 
             className="url-input"/>
         </div>
+       </div>
+         </div>
+          </div>
+
+     
     </div>
   );
 }
