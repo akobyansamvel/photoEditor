@@ -3,7 +3,7 @@ import './App.css';
 
 function App() {
   const [image, setImage] = useState();
-  const [imageURL, setImageURL] = useState('');
+  const [imageURL, setImageURL] = useState('/no_photo.jpg');
   const [color, setColor] = useState(''); 
   const [position, setPosition] = useState({x:0,y:0});
   const fileReader = new FileReader();
@@ -30,7 +30,7 @@ function App() {
     if (!canvasRef.current) return;
     const ctx = canvasRef.current.getContext('2d');
     const { offsetX, offsetY } = e.nativeEvent;
-    const [r, g, b] = ctx.getImageData(offsetX, offsetY, 1, 1).data;  
+    const [r, g, b] = ctx.getImageData(offsetX, offsetY, 1, 1).data;
     setColor(`rgb(${r}, ${g}, ${b})`);
   };
   const handleMouseMove = (e) => {
@@ -40,7 +40,6 @@ function App() {
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas || !imageURL) return;
     const context = canvas.getContext('2d');
     const image = new Image();
     image.src = imageURL;
@@ -49,27 +48,20 @@ function App() {
       canvas.height = image.height;
       context.drawImage(image, 0, 0);
     };
-    image.onerror = () => {
-      alert('Ошибка при загрузке изображения. Проверьте URL.');
-    };
   }, [imageURL]);
-  
 
   return (
     <div className="App">
-        <div className='uploader'>
+      <header className="App-header">
+        <form className='uploader'>
           <canvas
             ref={canvasRef}
             onMouseMove={handleMouseMove}
-            className='uploader__canvas'
+            style={{ display: 'block', width: '500px', maxHeight: '500px' }}
           ></canvas>
-        <div className='color-info'> 
-        <div>Координаты: X: {position.x}px, Y: {position.y}px</div>
-          <div className='color'>Цвет: {color}
-            <div style={{ backgroundColor: color,width:30, height:30,marginLeft:10}}><br/> </div>
-          </div>
-          <div >{image ? image.name : ""}</div>
-        </div>
+         <div>Position: X: {position.x}, Y: {position.y}</div>
+         <div style={{ backgroundColor: color }}>Текущий цвет: {color}</div>
+          <div className="uploader__file-name">{image ? image.name : ""}</div>
             <label
             htmlFor="loader-button"
             className="uploader__button">
@@ -80,14 +72,8 @@ function App() {
               type="file"
               className="uploader__upload-button"
               onChange={handleOnChange}/>
-        </div>
-        <div className="url-uploader">
-          <input
-            type="text"
-            placeholder="Введите URL изображения"
-            onChange={(e) => setImageURL(e.target.value)} 
-            className="url-input"/>
-        </div>
+        </form>
+      </header>
     </div>
   );
 }
