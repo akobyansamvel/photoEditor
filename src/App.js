@@ -100,6 +100,7 @@ function App() {
             placeholder="Введите URL изображения"
             onChange={(e) => setImageURL(e.target.value)} 
             className="url-input"/>
+            <button className='url-button'  onClick={setImage}> загрузить </button>
         </div>
        </div>
          </div>

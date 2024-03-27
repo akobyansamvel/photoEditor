@@ -11,6 +11,7 @@
   margin-bottom: 10px;
 }
 .load{
+  
   margin-top: 10px;
 display: flex;
 flex-direction: column;
@@ -78,4 +79,18 @@ flex-direction: column;
 .uploader__canvas{
   height: auto;
   width: auto;
+}
+.url-button{
+  cursor: pointer;
+  color: #000;
+  background-color: white;
+  border: 1px solid black;
+  border-radius: 8px;
+  padding: 5px;
+}
+.url-input{
+  padding: 5px;
+}
+.url-uploader{
+  margin-top: 5px;
 }
