@@ -1,49 +1,53 @@
+
 .App {
   padding-top: 70px;
   padding-bottom: 20px;
   text-align: center;
-  background-color: #282c34;
+  background-color: #1a1a1a;
   min-height: 100vh;
   font-size: calc(10px + 2vmin);
   color: white;
 }
-.image-size{
-  margin-bottom: 10px;
-}
-.load{
-  
-  margin-top: 10px;
-display: flex;
-flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-.text{
-  display: flex;
-  flex-direction: column;
-}
-.color-info{
+.color-info {
   display: flex;
   align-items: center;
   flex-direction: column;
   position: sticky;
   text-align: center;
   min-width: 200px;
- margin: 10px;
-  left: 20px;
+  margin: 10px;
+  right: 20px;
   top: 60px;
   bottom: 60px;
-
 }
+.image-size {
+  margin-bottom: 10px;
+}
+
+.load {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+}
+
 
 .App-link {
   color: #61dafb;
 }
-.color{
+
+.color {
   margin-top: 10px;
   display: flex;
 }
@@ -56,41 +60,56 @@ flex-direction: column;
 
 .uploader__button {
   cursor: pointer;
-  color: #000;
-  background-color: white;
-  border: 1px solid black;
+  color: white;
+  background-color: #007bff;
+  border: 1px solid #007bff;
   border-radius: 12px;
-  padding: 20px;
+  padding: 15px;
+  transition: background-color 0.3s ease;
+}
+
+.uploader__button:hover {
+  background-color: #0056b3;
 }
 
 .uploader {
   display: flex;
   justify-content: center;
-  flex-direction: row;
+  flex-direction: row-reverse;
   align-items: center;
   gap: 12px;
 }
+
 .uploader__preview {
   width: 200px;
   height: 200px;
   border: 1px dashed gray;
   border-radius: 12px;
 }
-.uploader__canvas{
+
+.uploader__canvas {
   height: auto;
   width: auto;
 }
-.url-button{
+
+.url-button {
   cursor: pointer;
-  color: #000;
-  background-color: white;
-  border: 1px solid black;
+  color: white;
+  background-color: #28a745;
+  border: 1px solid #28a745;
   border-radius: 8px;
+  padding: 10px;
+
+}
+
+.url-button:hover {
+  background-color: #218838;
+}
+
+.url-input {
   padding: 5px;
 }
-.url-input{
-  padding: 5px;
-}
-.url-uploader{
+
+.url-uploader {
   margin-top: 5px;
 }
