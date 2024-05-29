@@ -135,17 +135,37 @@ function App() {
 
     const moveAmount = e.shiftKey ? 20 : e.altKey ? 1 : 10;
 
-    const canvas = canvasRef.current;
-    const img = new Image();
-    img.src = imageURL;
+    if (activeTool === 'hand') {
+      const canvas = canvasRef.current;
+      const img = new Image();
+      img.src = imageURL;
 
-    img.onload = () => {
-      const { width, height } = canvas;
-      const offsetX = position.x - moveAmount < 0 ? 0 : position.x - moveAmount > width ? width : position.x - moveAmount;
-      const offsetY = position.y - moveAmount < 0 ? 0 : position.y - moveAmount > height ? height : position.y - moveAmount;
-      drawImage(img, scale, offsetX, offsetY);
-      setPosition({ x: offsetX, y: offsetY });
-    };
+      img.onload = () => {
+        const { width, height } = canvas;
+        let offsetX = position.x;
+        let offsetY = position.y;
+
+        switch (e.key) {
+          case 'ArrowLeft':
+            offsetX = position.x - moveAmount < 0 ? 0 : position.x - moveAmount;
+            break;
+          case 'ArrowRight':
+            offsetX = position.x + moveAmount > width ? width : position.x + moveAmount;
+            break;
+          case 'ArrowUp':
+            offsetY = position.y - moveAmount < 0 ? 0 : position.y - moveAmount;
+            break;
+          case 'ArrowDown':
+            offsetY = position.y + moveAmount > height ? height : position.y + moveAmount;
+            break;
+          default:
+            break;
+        }
+
+        drawImage(img, scale, offsetX, offsetY);
+        setPosition({ x: offsetX, y: offsetY });
+      };
+    }
   };
 
   const applyCurvesCorrection = (lut) => {
@@ -195,7 +215,7 @@ function App() {
               Высота: {displayedDimensions.height}px
             </div>
             <div>Координаты: <br />X: {position.x}px, <br /> Y: {position.y}px</div>
-            <div className="color">Цвет: <br /> {color}</div>
+            <div className="color">Цвет: <br /> {color}</div>   
             <div style={{ backgroundColor: color, width: 150, height: 30, marginTop: 10 }}></div>
           </div>
         )}
@@ -224,7 +244,7 @@ function App() {
                 onChange={(e) => setImageURL(e.target.value)}
                 className="url-input"
               />
-              <button className="url-button" onClick={() => fileReader.current.readAsDataURL(image)}> загрузить </button>
+              <button className="url-button" onClick={() => fileReader.current.readAsDataURL(image)}>загрузить</button>
             </div>
           </div>
           <div className="scale-selector">
@@ -265,3 +285,4 @@ function App() {
 }
 
 export default App;
+
