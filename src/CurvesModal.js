@@ -3,27 +3,29 @@ import { Line } from 'react-chartjs-2';
 import { Chart, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
 import './CurvesModal.css';
 
-// Регистрация компонентов
+// Регистрация компонентов Chart.js
 Chart.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 const CurvesModal = ({ isOpen, onClose, onApply, onReset, onPreview }) => {
+  // Состояния для входных и выходных значений
   const [input1, setInput1] = useState(0);
   const [output1, setOutput1] = useState(0);
   const [input2, setInput2] = useState(255);
   const [output2, setOutput2] = useState(255);
-  const [previewEnabled, setPreviewEnabled] = useState(false);
+  const [previewEnabled, setPreviewEnabled] = useState(false); // Состояние для предпросмотра
 
   useEffect(() => {
+    // Эффект для предпросмотра изменений
     if (previewEnabled) {
       const timeoutId = setTimeout(() => {
         const lut = generateLUT();
-        onPreview(lut);
-      }, 100); // задержка в 100 миллисекунд
-      return () => clearTimeout(timeoutId);
+        onPreview(lut); // Вызываем onPreview с LUT через 100 миллисекунд
+      }, 100);
+      return () => clearTimeout(timeoutId); // Очищаем таймер при размонтировании
     }
   }, [input1, output1, input2, output2, previewEnabled]);
-  
 
+  // Функция для генерации LUT (Look-Up Table)
   const generateLUT = () => {
     const lut = new Array(256);
     for (let i = 0; i < 256; i++) {
@@ -38,27 +40,30 @@ const CurvesModal = ({ isOpen, onClose, onApply, onReset, onPreview }) => {
     return lut;
   };
 
+  // Обработчик для применения изменений
   const handleApply = () => {
     const lut = generateLUT();
-    onApply(lut);
+    onApply(lut); // Вызываем onApply с LUT
   };
 
+  // Обработчик для сброса значений
   const handleReset = () => {
     setInput1(0);
     setOutput1(0);
     setInput2(255);
     setOutput2(255);
-    onReset();
+    onReset(); // Вызываем onReset
   };
 
-  if (!isOpen) return null;
+  if (!isOpen) return null; // Если модальное окно не открыто, не отображаем компонент
 
+  // Данные для графика
   const data = {
     labels: Array.from({ length: 256 }, (_, i) => i),
     datasets: [
       {
         label: 'Curve',
-        data: generateLUT(),
+        data: generateLUT(), // Генерируем LUT для данных графика
         borderColor: 'rgba(75,192,192,1)',
         fill: false,
       },
@@ -116,7 +121,7 @@ const CurvesModal = ({ isOpen, onClose, onApply, onReset, onPreview }) => {
           </div>
         </div>
         <div className="curves-chart">
-          <Line data={data} />
+          <Line data={data} /> {/* Отображаем график с данными */}
         </div>
         <div className="curves-controls">
           <label>

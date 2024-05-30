@@ -16,7 +16,7 @@ function Toolbar({ activeTool, onSelectTool, onOpenCurvesModal }) {
         onClick={() => onSelectTool('pipette')}
         title="Пипетка (Выбор цвета) [P]"
       >
-       🖌
+        🖌
       </button>
       <button
         className="curves-button"
