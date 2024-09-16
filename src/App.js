@@ -20,8 +20,12 @@ function App() {
   const [activeTool, setActiveTool] = useState('hand');
   const [colors, setColors] = useState({ primary: null, secondary: null });
   const [isPipetteInfoOpen, setIsPipetteInfoOpen] = useState(false);
+  const [imageOffset, setImageOffset] = useState({ x: 0, y: 0 }); // Offset for image movement
   const canvasRef = useRef(null);
   const fileReader = useRef(new FileReader());
+
+  const FIXED_CANVAS_WIDTH = 800; // Set the desired width of the canvas
+  const FIXED_CANVAS_HEIGHT = 600; // Set the desired height of the canvas
 
   // Обработчик события загрузки файла FileReader
   fileReader.current.onloadend = () => {
@@ -86,18 +90,18 @@ function App() {
   };
 
   // Рисование изображения на холсте
-  const drawImage = (img, scale, offsetX, offsetY) => {
+  const drawImage = (img, scale, offsetX = 0, offsetY = 0) => {
     const canvas = canvasRef.current;
     const context = canvas.getContext('2d');
 
     const scaledWidth = (img.width * scale) / 100;
     const scaledHeight = (img.height * scale) / 100;
 
-    canvas.width = scaledWidth;
-    canvas.height = scaledHeight;
+    const drawX = offsetX + (FIXED_CANVAS_WIDTH - scaledWidth) / 2;
+    const drawY = offsetY + (FIXED_CANVAS_HEIGHT - scaledHeight) / 2;
 
-    context.clearRect(0, 0, scaledWidth, scaledHeight);
-    context.drawImage(img, offsetX, offsetY, scaledWidth, scaledHeight);
+    context.clearRect(0, 0, FIXED_CANVAS_WIDTH, FIXED_CANVAS_HEIGHT);
+    context.drawImage(img, drawX, drawY, scaledWidth, scaledHeight);
 
     setDisplayedDimensions({ width: Math.round(scaledWidth), height: Math.round(scaledHeight) });
   };
@@ -109,8 +113,6 @@ function App() {
     const img = new Image();
     img.src = imageURL;
     img.onload = () => {
-      canvas.width = width;
-      canvas.height = height;
       context.imageSmoothingEnabled = false;
       context.drawImage(img, 0, 0, width, height);
       setDisplayedDimensions({ width: width, height: height });
@@ -134,12 +136,12 @@ function App() {
     img.onload = () => {
       setOriginalDimensions({ width: img.width, height: img.height });
       setDisplayedDimensions({ width: img.width, height: img.height });
-      drawImage(img, scale, 0, 0);
+      drawImage(img, scale, imageOffset.x, imageOffset.y);
     };
     img.onerror = () => {
       alert('Ошибка при загрузке изображения. Проверьте URL.');
     };
-  }, [imageURL, scale]);
+  }, [imageURL, scale, imageOffset]);
 
   // Обработчик события нажатия клавиши для навигации по холсту
   const handleKeyDown = (e) => {
@@ -148,35 +150,27 @@ function App() {
     const moveAmount = e.shiftKey ? 20 : e.altKey ? 1 : 10;
 
     if (activeTool === 'hand') {
-      const canvas = canvasRef.current;
-      const img = new Image();
-      img.src = imageURL;
+      let offsetX = imageOffset.x;
+      let offsetY = imageOffset.y;
 
-      img.onload = () => {
-        const { width, height } = canvas;
-        let offsetX = position.x;
-        let offsetY = position.y;
+      switch (e.key) {
+        case 'ArrowLeft':
+          offsetX -= moveAmount;
+          break;
+        case 'ArrowRight':
+          offsetX += moveAmount;
+          break;
+        case 'ArrowUp':
+          offsetY -= moveAmount;
+          break;
+        case 'ArrowDown':
+          offsetY += moveAmount;
+          break;
+        default:
+          return; // Do nothing for other keys
+      }
 
-        switch (e.key) {
-          case 'ArrowLeft':
-            offsetX = position.x - moveAmount < 0 ? 0 : position.x - moveAmount;
-            break;
-          case 'ArrowRight':
-            offsetX = position.x + moveAmount > width ? width : position.x + moveAmount;
-            break;
-          case 'ArrowUp':
-            offsetY = position.y - moveAmount < 0 ? 0 : position.y - moveAmount;
-            break;
-          case 'ArrowDown':
-            offsetY = position.y + moveAmount > height ? height : position.y + moveAmount;
-            break;
-          default:
-            break;
-        }
-
-        drawImage(img, scale, offsetX, offsetY);
-        setPosition({ x: offsetX, y: offsetY });
-      };
+      setImageOffset({ x: offsetX, y: offsetY });
     }
   };
 
@@ -238,6 +232,8 @@ function App() {
         <div className="test">
           <canvas
             ref={canvasRef}
+            width={FIXED_CANVAS_WIDTH}
+            height={FIXED_CANVAS_HEIGHT}
             onMouseMove={handleMouseMove}
             onClick={handleCanvasClick}
             className="uploader__canvas"
