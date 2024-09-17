@@ -106,18 +106,28 @@ function App() {
     setDisplayedDimensions({ width: Math.round(scaledWidth), height: Math.round(scaledHeight) });
   };
 
-  // Изменение размера изображения
-  const resizeImage = ({ width, height }) => {
-    const canvas = canvasRef.current;
-    const context = canvas.getContext('2d');
-    const img = new Image();
-    img.src = imageURL;
-    img.onload = () => {
-      context.imageSmoothingEnabled = false;
-      context.drawImage(img, 0, 0, width, height);
-      setDisplayedDimensions({ width: width, height: height });
-    };
+// Изменение размера изображения
+const resizeImage = ({ width, height }) => {
+  const canvas = canvasRef.current;
+  const context = canvas.getContext('2d');
+  const img = new Image();
+  img.src = imageURL; // Используем текущий imageURL для загрузки изображения
+  img.onload = () => {
+    context.clearRect(0, 0, canvas.width, canvas.height); // Очищаем холст перед рисованием
+    context.imageSmoothingEnabled = false;
+    
+    // Рассчитываем позиции для центрирования изображения внутри холста
+    const offsetX = (canvas.width - width) / 2;
+    const offsetY = (canvas.height - height) / 2;
+    
+    // Рисуем изображение на холсте по новым размерам, центрированное
+    context.drawImage(img, offsetX, offsetY, width, height);
+    
+    setDisplayedDimensions({ width: width, height: height }); // Обновляем состояние с новыми размерами
   };
+};
+
+
 
   // Сохранение изображения в локальный файл
   const saveImage = () => {
@@ -127,6 +137,26 @@ function App() {
     link.download = 'resized_image.png';
     link.click();
   };
+  const drawImageWithOriginalSize = (image, offsetX = 0, offsetY = 0, scale = 100) => {
+  const canvas = canvasRef.current;
+  const context = canvas.getContext('2d');
+
+  // Очищаем холст перед отрисовкой
+  context.clearRect(0, 0, canvas.width, canvas.height);
+
+  const scaledWidth = (image.width * scale) / 100;
+  const scaledHeight = (image.height * scale) / 100;
+
+  // Рассчитываем новую позицию для отрисовки с учётом смещения
+  const drawX = offsetX;
+  const drawY = offsetY;
+
+  // Ограничиваем отображение изображением рамками канваса
+  context.drawImage(image, drawX, drawY, scaledWidth, scaledHeight);
+
+  setDisplayedDimensions({ width: scaledWidth, height: scaledHeight });
+};
+
 
   // Эффект для загрузки и рисования изображения на холсте
   useEffect(() => {
@@ -146,33 +176,38 @@ function App() {
   // Обработчик события нажатия клавиши для навигации по холсту
   const handleKeyDown = (e) => {
     console.log('Нажата клавиша:', e.key);
-
-    const moveAmount = e.shiftKey ? 20 : e.altKey ? 1 : 10;
-
+  
+    // Если активен инструмент "рука", предотвращаем стандартное поведение (например, прокрутку)
     if (activeTool === 'hand') {
+      const moveAmount = e.shiftKey ? 20 : e.altKey ? 1 : 10;
       let offsetX = imageOffset.x;
       let offsetY = imageOffset.y;
-
+  
       switch (e.key) {
         case 'ArrowLeft':
+          e.preventDefault();  // Останавливаем прокрутку
           offsetX -= moveAmount;
           break;
         case 'ArrowRight':
+          e.preventDefault();  // Останавливаем прокрутку
           offsetX += moveAmount;
           break;
         case 'ArrowUp':
+          e.preventDefault();  // Останавливаем прокрутку
           offsetY -= moveAmount;
           break;
         case 'ArrowDown':
+          e.preventDefault();  // Останавливаем прокрутку
           offsetY += moveAmount;
           break;
         default:
           return; // Do nothing for other keys
       }
-
+  
       setImageOffset({ x: offsetX, y: offsetY });
     }
   };
+  
 
   // Применение коррекции кривых с использованием LUT
   const applyCurvesCorrection = (lut) => {

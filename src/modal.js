@@ -7,7 +7,6 @@ function ResizeModal({ isOpen, onClose, imageWidth, imageHeight, onResize }) {
   const [height, setHeight] = useState(100);
   const [maintainAspectRatio, setMaintainAspectRatio] = useState(true);
   const [interpolation, setInterpolation] = useState('nearest');
-  const originalPixels = Math.round((imageWidth * imageHeight) / 1000000);
 
   useEffect(() => {
     setWidth(100);
@@ -46,9 +45,6 @@ function ResizeModal({ isOpen, onClose, imageWidth, imageHeight, onResize }) {
 
   if (!isOpen) return null;
 
-  const newPixels = units === 'percent'
-    ? Math.round((imageWidth * width / 100) * (imageHeight * height / 100) / 1000000)
-    : Math.round((width * height) / 1000000);
 
   return (
     <div className="modal-overlay">
@@ -89,10 +85,6 @@ function ResizeModal({ isOpen, onClose, imageWidth, imageHeight, onResize }) {
               Ближайший сосед - быстрый и простой метод, но может приводить к появлению ступенчатых краев в изображении.
             </span>
           </div>
-        </div>
-        <div>
-          <p>Исходные пиксели: {originalPixels} Мп</p>
-          <p>Новые пиксели: {newPixels} Мп</p>
         </div>
         <div className="modal-buttons">
           <button onClick={handleResize}>Применить</button>
