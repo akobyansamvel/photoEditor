@@ -1,31 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { Line } from 'react-chartjs-2';
-import { Chart, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
 import './CurvesModal.css';
 
-// Регистрация компонентов Chart.js
-Chart.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
-
 const CurvesModal = ({ isOpen, onClose, onApply, onReset, onPreview }) => {
-  // Состояния для входных и выходных значений
   const [input1, setInput1] = useState(0);
   const [output1, setOutput1] = useState(0);
   const [input2, setInput2] = useState(255);
   const [output2, setOutput2] = useState(255);
-  const [previewEnabled, setPreviewEnabled] = useState(false); // Состояние для предпросмотра
+  const [previewEnabled, setPreviewEnabled] = useState(false);
 
   useEffect(() => {
-    // Эффект для предпросмотра изменений
     if (previewEnabled) {
       const timeoutId = setTimeout(() => {
         const lut = generateLUT();
-        onPreview(lut); // Вызываем onPreview с LUT через 100 миллисекунд
+        onPreview(lut);
       }, 100);
-      return () => clearTimeout(timeoutId); // Очищаем таймер при размонтировании
+      return () => clearTimeout(timeoutId);
     }
   }, [input1, output1, input2, output2, previewEnabled]);
 
-  // Функция для генерации LUT (Look-Up Table)
+  // Генерация LUT
   const generateLUT = () => {
     const lut = new Array(256);
     for (let i = 0; i < 256; i++) {
@@ -40,34 +33,54 @@ const CurvesModal = ({ isOpen, onClose, onApply, onReset, onPreview }) => {
     return lut;
   };
 
-  // Обработчик для применения изменений
+  // Применение изменений
   const handleApply = () => {
     const lut = generateLUT();
-    onApply(lut); // Вызываем onApply с LUT
+    onApply(lut);
   };
 
-  // Обработчик для сброса значений
+  // Сброс значений
   const handleReset = () => {
     setInput1(0);
     setOutput1(0);
     setInput2(255);
     setOutput2(255);
-    onReset(); // Вызываем onReset
+    onReset();
   };
 
-  if (!isOpen) return null; // Если модальное окно не открыто, не отображаем компонент
+  if (!isOpen) return null;
 
-  // Данные для графика
-  const data = {
-    labels: Array.from({ length: 256 }, (_, i) => i),
-    datasets: [
-      {
-        label: 'Curve',
-        data: generateLUT(), // Генерируем LUT для данных графика
-        borderColor: 'rgba(75,192,192,1)',
-        fill: false,
-      },
-    ],
+  // Проверка входных данных
+  const handleInput1Change = (e) => {
+    const value = Number(e.target.value);
+    if (value >= 0 && value < input2) setInput1(value);
+  };
+
+  const handleInput2Change = (e) => {
+    const value = Number(e.target.value);
+    if (value > input1 && value <= 255) setInput2(value);
+  };
+
+  // Генерация SVG для кривых
+  const generateSVGCurve = () => {
+    const x1 = (input1 / 255) * 200;
+    const x2 = (input2 / 255) * 200;
+    const y1 = 200 - (output1 / 255) * 200;
+    const y2 = 200 - (output2 / 255) * 200;
+
+    return (
+      <svg width="200" height="200" className="curve-svg">
+        {/* Гистограммы */}
+        <line x1="0" y1="200" x2="200" y2="0" stroke="#ccc" />
+        {/* Линии, соединяющие точки */}
+        <line x1="0" y1="200" x2={x1} y2={y1} stroke="blue" strokeWidth="2" />
+        <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="blue" strokeWidth="2" />
+        <line x1={x2} y1={y2} x2="200" y2="0" stroke="blue" strokeWidth="2" />
+        {/* Точки */}
+        <circle cx={x1} cy={y1} r="4" fill="red" />
+        <circle cx={x2} cy={y2} r="4" fill="red" />
+      </svg>
+    );
   };
 
   return (
@@ -81,7 +94,7 @@ const CurvesModal = ({ isOpen, onClose, onApply, onReset, onPreview }) => {
               <input
                 type="number"
                 value={input1}
-                onChange={(e) => setInput1(Number(e.target.value))}
+                onChange={handleInput1Change}
                 min="0"
                 max="254"
               />
@@ -103,7 +116,7 @@ const CurvesModal = ({ isOpen, onClose, onApply, onReset, onPreview }) => {
               <input
                 type="number"
                 value={input2}
-                onChange={(e) => setInput2(Number(e.target.value))}
+                onChange={handleInput2Change}
                 min="1"
                 max="255"
               />
@@ -120,9 +133,11 @@ const CurvesModal = ({ isOpen, onClose, onApply, onReset, onPreview }) => {
             </label>
           </div>
         </div>
+
         <div className="curves-chart">
-          <Line data={data} /> {/* Отображаем график с данными */}
+          {generateSVGCurve()} {/* Отображение SVG с кривой */}
         </div>
+
         <div className="curves-controls">
           <label>
             <input

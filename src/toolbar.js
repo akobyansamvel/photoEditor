@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import './App.css';
 
-function Toolbar({ activeTool, onSelectTool, onOpenCurvesModal }) {
+function Toolbar({ activeTool, onSelectTool, onOpenCurvesModal, onOpenKernelModal }) {
   return (
     <div className="toolbar">
       <button
@@ -25,6 +25,7 @@ function Toolbar({ activeTool, onSelectTool, onOpenCurvesModal }) {
       >
         Кривые
       </button>
+     
     </div>
   );
 }
