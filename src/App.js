@@ -1,32 +1,33 @@
 import React, { useState, useRef, useEffect } from 'react';
-import './App.css';
-import ResizeModal from './modal';
-import Toolbar from './toolbar';
-import PipetteInfo from './pipet';
-import CurvesModal from './CurvesModal'; // Импорт компонента CurvesModal
-import { rgbToXyz, rgbToLab, rgbToLch, rgbToOKLch, calculateContrast, calculateAPCA } from './utils';
+import './styles/App.css';
+import ResizeModal from './components/modal';
+import Toolbar from './components/toolbar';
+import PipetteInfo from './components/pipet';
+import GrapModal from './components/graphModal'; 
+import { rgbToXyz, rgbToLab, rgbToLch, rgbToOKLch} from './utils';
+import ConvolutionFilterModal from './components/KernelModal';
 
 function App() {
-  // Состояния для управления приложением
   const [image, setImage] = useState(null);
   const [imageURL, setImageURL] = useState('');
+  const [showModal, setShowModal] = useState(false);
   const [color, setColor] = useState('');
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [scale, setScale] = useState(100);
   const [originalDimensions, setOriginalDimensions] = useState({ width: 0, height: 0 });
   const [displayedDimensions, setDisplayedDimensions] = useState({ width: 0, height: 0 });
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isCurvesModalOpen, setIsCurvesModalOpen] = useState(false); // Состояние для CurvesModal
+  const [isCurvesModalOpen, setIsCurvesModalOpen] = useState(false); 
   const [activeTool, setActiveTool] = useState('hand');
   const [colors, setColors] = useState({ primary: null, secondary: null });
   const [isPipetteInfoOpen, setIsPipetteInfoOpen] = useState(false);
-  const [imageOffset, setImageOffset] = useState({ x: 0, y: 0 }); // Offset for image movement
+  const [imageOffset, setImageOffset] = useState({ x: 0, y: 0 }); 
   const canvasRef = useRef(null);
   const fileReader = useRef(new FileReader());
 
-  const FIXED_CANVAS_WIDTH = 800; // Set the desired width of the canvas
-  const FIXED_CANVAS_HEIGHT = 600; // Set the desired height of the canvas
-
+  const FIXED_CANVAS_WIDTH = 1000; 
+  const FIXED_CANVAS_HEIGHT = 600; 
+  
   // Обработчик события загрузки файла FileReader
   fileReader.current.onloadend = () => {
     setImageURL(fileReader.current.result);
@@ -111,19 +112,16 @@ const resizeImage = ({ width, height }) => {
   const canvas = canvasRef.current;
   const context = canvas.getContext('2d');
   const img = new Image();
-  img.src = imageURL; // Используем текущий imageURL для загрузки изображения
+  img.src = imageURL; 
   img.onload = () => {
-    context.clearRect(0, 0, canvas.width, canvas.height); // Очищаем холст перед рисованием
+    context.clearRect(0, 0, canvas.width, canvas.height); 
     context.imageSmoothingEnabled = false;
-    
-    // Рассчитываем позиции для центрирования изображения внутри холста
+  
     const offsetX = (canvas.width - width) / 2;
-    const offsetY = (canvas.height - height) / 2;
-    
-    // Рисуем изображение на холсте по новым размерам, центрированное
+    const offsetY = (canvas.height - height) / 2;  
+
     context.drawImage(img, offsetX, offsetY, width, height);
-    
-    setDisplayedDimensions({ width: width, height: height }); // Обновляем состояние с новыми размерами
+    setDisplayedDimensions({ width: width, height: height }); 
   };
 };
 
@@ -173,11 +171,11 @@ const resizeImage = ({ width, height }) => {
     };
   }, [imageURL, scale, imageOffset]);
 
-  // Обработчик события нажатия клавиши для навигации по холсту
+
   const handleKeyDown = (e) => {
     console.log('Нажата клавиша:', e.key);
   
-    // Если активен инструмент "рука", предотвращаем стандартное поведение (например, прокрутку)
+    
     if (activeTool === 'hand') {
       const moveAmount = e.shiftKey ? 20 : e.altKey ? 1 : 10;
       let offsetX = imageOffset.x;
@@ -185,23 +183,23 @@ const resizeImage = ({ width, height }) => {
   
       switch (e.key) {
         case 'ArrowLeft':
-          e.preventDefault();  // Останавливаем прокрутку
+          e.preventDefault(); 
           offsetX -= moveAmount;
           break;
         case 'ArrowRight':
-          e.preventDefault();  // Останавливаем прокрутку
+          e.preventDefault();  
           offsetX += moveAmount;
           break;
         case 'ArrowUp':
-          e.preventDefault();  // Останавливаем прокрутку
+          e.preventDefault(); 
           offsetY -= moveAmount;
           break;
         case 'ArrowDown':
-          e.preventDefault();  // Останавливаем прокрутку
+          e.preventDefault();  
           offsetY += moveAmount;
           break;
         default:
-          return; // Do nothing for other keys
+          return; 
       }
   
       setImageOffset({ x: offsetX, y: offsetY });
@@ -217,9 +215,9 @@ const resizeImage = ({ width, height }) => {
     const data = imageData.data;
 
     for (let i = 0; i < data.length; i += 4) {
-      data[i] = lut[data[i]];       // Красный
-      data[i + 1] = lut[data[i + 1]]; // Зеленый
-      data[i + 2] = lut[data[i + 2]]; // Синий
+      data[i] = lut[data[i]];       
+      data[i + 1] = lut[data[i + 1]]; 
+      data[i + 2] = lut[data[i + 2]]; 
     }
 
     ctx.putImageData(imageData, 0, 0);
@@ -247,10 +245,120 @@ const resizeImage = ({ width, height }) => {
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
     };
   };
+  const openModal = () => {
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+  };
+
+  const applyFilter = (kernel) => {
+    const canvas = canvasRef.current;
+    if (canvas) {
+      const ctx = canvas.getContext('2d');
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height); // Extract image data from the canvas
+  
+      const newImageData = applyConvolutionWithPadding(imageData, kernel); // Apply the convolution filter
+      ctx.putImageData(newImageData, 0, 0); // Put the filtered image data back on the canvas
+      console.log('Applying filter with kernel:', kernel);
+      closeModal();
+    }
+  };
+  
+  
+  const applyConvolutionWithPadding = (imageData, kernel) => {
+    const kernelSize = kernel.length;
+    const halfKernel = Math.floor(kernelSize / 2);
+  
+    // Расширяем изображение перед применением свертки
+    const paddedImageData = padImageEdges(imageData, halfKernel);
+    const paddedWidth = paddedImageData.width;
+    const paddedHeight = paddedImageData.height;
+  
+    const outputData = new Uint8ClampedArray(imageData.data.length);
+  
+    // Нормализация ядра — вычисляем сумму всех его элементов
+    const kernelSum = kernel.flat().reduce((sum, value) => sum + value, 0) || 1;
+  
+    for (let y = 0; y < imageData.height; y++) {
+      for (let x = 0; x < imageData.width; x++) {
+        let r = 0, g = 0, b = 0;
+  
+        // Применение свертки к каждому каналу
+        for (let ky = -halfKernel; ky <= halfKernel; ky++) {
+          for (let kx = -halfKernel; kx <= halfKernel; kx++) {
+            const pixelX = x + kx + halfKernel;
+            const pixelY = y + ky + halfKernel;
+            const pixelIndex = (pixelY * paddedWidth + pixelX) * 4;
+            const kernelValue = kernel[ky + halfKernel][kx + halfKernel];
+  
+            r += paddedImageData.data[pixelIndex] * kernelValue;
+            g += paddedImageData.data[pixelIndex + 1] * kernelValue;
+            b += paddedImageData.data[pixelIndex + 2] * kernelValue;
+          }
+        }
+  
+        const outputIndex = (y * imageData.width + x) * 4;
+  
+        // Нормализуем значения и следим, чтобы они оставались в пределах от 0 до 255
+        outputData[outputIndex] = Math.min(255, Math.max(0, r / kernelSum));
+        outputData[outputIndex + 1] = Math.min(255, Math.max(0, g / kernelSum));
+        outputData[outputIndex + 2] = Math.min(255, Math.max(0, b / kernelSum));
+        outputData[outputIndex + 3] = imageData.data[outputIndex + 3]; // Альфа-канал остаётся неизменным
+      }
+    }
+  
+    return new ImageData(outputData, imageData.width, imageData.height);
+  };
+  
+  
+  const padImageEdges = (imageData, paddingSize) => {
+    const width = imageData.width;
+    const height = imageData.height;
+    const paddedWidth = width + paddingSize * 2;
+    const paddedHeight = height + paddingSize * 2;
+  
+    const paddedData = new Uint8ClampedArray(paddedWidth * paddedHeight * 4);
+  
+    for (let y = 0; y < paddedHeight; y++) {
+      for (let x = 0; x < paddedWidth; x++) {
+        const paddedIndex = (y * paddedWidth + x) * 4;
+  
+        // Координаты внутри исходного изображения
+        const originalX = Math.min(width - 1, Math.max(0, x - paddingSize));
+        const originalY = Math.min(height - 1, Math.max(0, y - paddingSize));
+        const originalIndex = (originalY * width + originalX) * 4;
+  
+        // Копируем пиксельные значения (RGB + Alpha)
+        paddedData[paddedIndex] = imageData.data[originalIndex];       // Red
+        paddedData[paddedIndex + 1] = imageData.data[originalIndex + 1]; // Green
+        paddedData[paddedIndex + 2] = imageData.data[originalIndex + 2]; // Blue
+        paddedData[paddedIndex + 3] = imageData.data[originalIndex + 3]; // Alpha
+      }
+    }
+  
+    return { data: paddedData, width: paddedWidth, height: paddedHeight };
+  };
+  
+  
+  const resetFilter = () => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+    img.src = imageURL; // Исходное изображение
+    img.onload = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height); // Возвращаем исходное изображение
+      console.log('Resetting filter');
+    };
+  };
+  
+
 
   return (
     <div className="App" onKeyDown={handleKeyDown} tabIndex="0">
-      <Toolbar activeTool={activeTool} onSelectTool={setActiveTool} onOpenCurvesModal={() => setIsCurvesModalOpen(true)} />
+      <Toolbar activeTool={activeTool} onSelectTool={setActiveTool}  onOpenCurvesModal={() => setIsCurvesModalOpen(true)} openModal= {openModal} />
       <div className="uploader">
         {image && (
           <div className="color-info">
@@ -266,7 +374,7 @@ const resizeImage = ({ width, height }) => {
         )}
         <div className="test">
           <canvas
-            ref={canvasRef}
+            ref={canvasRef} 
             width={FIXED_CANVAS_WIDTH}
             height={FIXED_CANVAS_HEIGHT}
             onMouseMove={handleMouseMove}
@@ -293,6 +401,7 @@ const resizeImage = ({ width, height }) => {
               />
               <button className="url-button" onClick={() => fileReader.current.readAsDataURL(image)}>загрузить</button>
             </div>
+          
           </div>
           <div className="scale-selector">
             <label htmlFor="scale">Масштаб:</label>
@@ -308,10 +417,18 @@ const resizeImage = ({ width, height }) => {
           />
             <span>{scale}%</span>
           </div>
-          <button onClick={() => setIsModalOpen(true)}>Изменить размер</button>
-          <button onClick={saveImage}>Сохранить</button>
+          <button className='size_button' onClick={() => setIsModalOpen(true)}>Изменить размер</button>
+          <button className='save_button' onClick={saveImage}>Сохранить</button>
         </div>
       </div>
+      {showModal && (
+        <ConvolutionFilterModal
+          onClose={closeModal}
+          onApply={applyFilter}
+          onReset={resetFilter}
+          imageData={null} // передайте imageData, если необходимо
+        />
+      )}
       <ResizeModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -319,7 +436,7 @@ const resizeImage = ({ width, height }) => {
         imageHeight={originalDimensions.height}
         onResize={resizeImage}
       />
-      <CurvesModal
+      <GrapModal
         isOpen={isCurvesModalOpen}
         onClose={() => setIsCurvesModalOpen(false)}
         onApply={handleCurvesApply}

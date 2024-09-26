@@ -3,10 +3,10 @@
   padding-top: 70px;
   padding-bottom: 20px;
   text-align: center;
-  background-color: #1a1a1a;
+  background-color: #ffffff;
   min-height: 100vh;
   font-size: calc(10px + 2vmin);
-  color: white;
+  color: rgb(0, 0, 0);
 }
 .color-info {
   display: flex;
@@ -61,15 +61,15 @@
 .uploader__button {
   cursor: pointer;
   color: white;
-  background-color: #007bff;
-  border: 1px solid #007bff;
+  background-color: #40ff00;
+  border: 1px solid #40ff00;
   border-radius: 12px;
   padding: 15px;
   transition: background-color 0.3s ease;
 }
 
 .uploader__button:hover {
-  background-color: #0056b3;
+  background-color: #40ff00;
 }
 
 .uploader {
@@ -95,11 +95,30 @@
 .url-button {
   cursor: pointer;
   color: white;
-  background-color: #28a745;
-  border: 1px solid #28a745;
+  background-color: #40ff00;
+  border: 1px solid #40ff00;
   border-radius: 8px;
   padding: 10px;
 
+}
+
+.size_button{
+  background-color: #40ff00;
+  border-color: #40ff00;
+  color: white;
+  width: 140px;
+  height: 30px;
+  border-radius: 10px;
+  
+}
+
+.save_button{
+  background-color: #40ff00;
+  border-color: #40ff00;
+  color: white;
+  width: 100px;
+  height: 30px;
+  border-radius: 10px;
 }
 
 .url-button:hover {
@@ -120,8 +139,8 @@
 
 .canvas-container {
   position: relative;
-  overflow: auto;
-  max-width: 800px; /* Установите максимальную ширину для видимости полос прокрутки */
-  max-height: 600px; /* Установите максимальную высоту для видимости полос прокрутки */
+  overflow: auto; 
+  max-width: 1000px; 
+  max-height: 600px; 
 }
 

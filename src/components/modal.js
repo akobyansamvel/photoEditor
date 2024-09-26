@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import './modal.css';
+import '../styles/modal.css';
 
 function ResizeModal({ isOpen, onClose, imageWidth, imageHeight, onResize }) {
   const [units, setUnits] = useState('percent');

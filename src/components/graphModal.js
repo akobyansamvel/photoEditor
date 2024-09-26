@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import './CurvesModal.css';
+import '../styles/graphModal.css';
 
-const CurvesModal = ({ isOpen, onClose, onApply, onReset, onPreview }) => {
+const GrapModal = ({ isOpen, onClose, onApply, onReset, onPreview }) => {
   const [input1, setInput1] = useState(0);
   const [output1, setOutput1] = useState(0);
   const [input2, setInput2] = useState(255);
@@ -70,13 +70,12 @@ const CurvesModal = ({ isOpen, onClose, onApply, onReset, onPreview }) => {
 
     return (
       <svg width="200" height="200" className="curve-svg">
-        {/* Гистограммы */}
         <line x1="0" y1="200" x2="200" y2="0" stroke="#ccc" />
-        {/* Линии, соединяющие точки */}
+  
         <line x1="0" y1="200" x2={x1} y2={y1} stroke="blue" strokeWidth="2" />
         <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="blue" strokeWidth="2" />
         <line x1={x2} y1={y2} x2="200" y2="0" stroke="blue" strokeWidth="2" />
-        {/* Точки */}
+  
         <circle cx={x1} cy={y1} r="4" fill="red" />
         <circle cx={x2} cy={y2} r="4" fill="red" />
       </svg>
@@ -135,7 +134,7 @@ const CurvesModal = ({ isOpen, onClose, onApply, onReset, onPreview }) => {
         </div>
 
         <div className="curves-chart">
-          {generateSVGCurve()} {/* Отображение SVG с кривой */}
+          {generateSVGCurve()} 
         </div>
 
         <div className="curves-controls">
@@ -156,4 +155,4 @@ const CurvesModal = ({ isOpen, onClose, onApply, onReset, onPreview }) => {
   );
 };
 
-export default CurvesModal;
+export default GrapModal;

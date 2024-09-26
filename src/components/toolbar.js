@@ -1,7 +1,7 @@
 import React from 'react';
-import './App.css';
+import '../styles/App.css';
 
-function Toolbar({ activeTool, onSelectTool, onOpenCurvesModal, onOpenKernelModal }) {
+function Toolbar({ activeTool, onSelectTool, onOpenCurvesModal, openModal }) {
   return (
     <div className="toolbar">
       <button
@@ -25,7 +25,8 @@ function Toolbar({ activeTool, onSelectTool, onOpenCurvesModal, onOpenKernelModa
       >
         Кривые
       </button>
-     
+      <button onClick={openModal}>Open Convolution Filter</button>
+
     </div>
   );
 }

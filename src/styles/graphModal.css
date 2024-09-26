@@ -1,0 +1,53 @@
+.curves-modal-overlay {
+  color: black;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.curves-modal {
+  background: white;
+  padding: 20px;
+  border-radius: 5px;
+  width: 600px; 
+  max-width: 90%; 
+  max-height: calc(100% - 40px);
+  overflow: auto; 
+  position: fixed; 
+  top: 50%; 
+  transform: translateY(-50%); 
+  right: 0; 
+}
+
+
+
+.curves-inputs {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.curves-inputs div {
+  display: flex;
+  flex-direction: column;
+}
+
+.curves-inputs label {
+  margin-bottom: 10px;
+}
+
+.curves-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.curves-chart {
+  margin: 20px 0;
+}
