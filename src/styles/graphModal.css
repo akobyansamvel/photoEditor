@@ -20,9 +20,10 @@
   max-height: calc(100% - 40px);
   overflow: auto; 
   position: fixed; 
-  top: 50%; 
-  transform: translateY(-50%); 
-  right: 0; 
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
 }
 
 
