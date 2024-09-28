@@ -223,28 +223,39 @@ const resizeImage = ({ width, height }) => {
     ctx.putImageData(imageData, 0, 0);
   };
 
-  // Предпросмотр коррекции кривых
-  const handlePreviewCurvesCorrection = (lut) => {
-    applyCurvesCorrection(lut);
-  };
+ // Предпросмотр коррекции кривых
+const handlePreviewCurvesCorrection = (lut) => {
+  applyCurvesCorrection(lut);
+};
 
-  // Применение и закрытие коррекции кривых
-  const handleCurvesApply = (lut) => {
-    applyCurvesCorrection(lut);
-    setIsCurvesModalOpen(false);
-  };
+// Применение коррекции кривых
+const handleCurvesApply = (lut) => {
+  applyCurvesCorrection(lut);
+  // Удалите следующую строку, чтобы окно оставалось открытым
+  // setIsCurvesModalOpen(false);
+};
+
 
   // Сброс коррекции кривых к исходному изображению
-  const handleCurvesReset = () => {
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    const img = new Image();
-    img.src = imageURL;
-    img.onload = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-    };
+const handleCurvesReset = () => {
+  const canvas = canvasRef.current;
+  const ctx = canvas.getContext('2d');
+  const img = new Image();
+  
+  img.src = imageURL;
+  img.onload = () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Рисуем изображение с учетом смещения и масштаба
+    const scaledWidth = (img.width * scale) / 100;
+    const scaledHeight = (img.height * scale) / 100;
+    const drawX = imageOffset.x + (FIXED_CANVAS_WIDTH - scaledWidth) / 2;
+    const drawY = imageOffset.y + (FIXED_CANVAS_HEIGHT - scaledHeight) / 2;
+
+    ctx.drawImage(img, drawX, drawY, scaledWidth, scaledHeight);
   };
+};
+
   const openModal = () => {
     setShowModal(true);
   };
@@ -346,15 +357,73 @@ const resizeImage = ({ width, height }) => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
     const img = new Image();
+    
     img.src = imageURL; // Исходное изображение
     img.onload = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height); // Возвращаем исходное изображение
+      ctx.clearRect(0, 0, canvas.width, canvas.height); // Очищаем холст
+  
+      // Рассчитываем ширину и высоту изображения с учетом масштаба
+      const scaledWidth = (img.width * scale) / 100; // Предположим, scale - это процент
+      const scaledHeight = (img.height * scale) / 100;
+  
+      // Рассчитываем позицию для рисования с учетом смещения
+      const drawX = imageOffset.x + (FIXED_CANVAS_WIDTH - scaledWidth) / 2;
+      const drawY = imageOffset.y + (FIXED_CANVAS_HEIGHT - scaledHeight) / 2;
+  
+      // Рисуем изображение на холсте с учетом позиции и масштаба
+      ctx.drawImage(img, drawX, drawY, scaledWidth, scaledHeight);
       console.log('Resetting filter');
     };
   };
+  const applyKernelToImageData = (imageData, kernel) => {
+    const width = imageData.width;
+    const height = imageData.height;
+    const outputData = new Uint8ClampedArray(imageData.data.length); // Создаем новый массив для выходных данных
   
-
+    const halfKernelSize = Math.floor(kernel.length / 2);
+  
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        let r = 0, g = 0, b = 0; // Красный, зеленый и синий каналы
+  
+        // Применяем ядро
+        for (let ky = -halfKernelSize; ky <= halfKernelSize; ky++) {
+          for (let kx = -halfKernelSize; kx <= halfKernelSize; kx++) {
+            const pixelY = Math.min(height - 1, Math.max(0, y + ky));
+            const pixelX = Math.min(width - 1, Math.max(0, x + kx));
+  
+            const pixelIndex = (pixelY * width + pixelX) * 4; // Индекс пикселя в массиве данных
+  
+            const kernelValue = kernel[ky + halfKernelSize][kx + halfKernelSize]; // Значение ядра
+  
+            r += imageData.data[pixelIndex] * kernelValue;     // Красный
+            g += imageData.data[pixelIndex + 1] * kernelValue; // Зеленый
+            b += imageData.data[pixelIndex + 2] * kernelValue; // Синий
+          }
+        }
+  
+        const outputIndex = (y * width + x) * 4; // Индекс в выходных данных
+        outputData[outputIndex] = Math.min(Math.max(r, 0), 255);     // Красный
+        outputData[outputIndex + 1] = Math.min(Math.max(g, 0), 255); // Зеленый
+        outputData[outputIndex + 2] = Math.min(Math.max(b, 0), 255); // Синий
+        outputData[outputIndex + 3] = imageData.data[outputIndex + 3]; // Альфа-канал
+      }
+    }
+  
+    return new ImageData(outputData, width, height); // Возвращаем новые данные изображения
+  };
+  
+  const handlePreviewKernel = (kernel) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return; // Выход, если canvas не существует
+    const ctx = canvas.getContext('2d');
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  
+    const previewImageData = applyKernelToImageData(imageData, kernel);
+    ctx.putImageData(previewImageData, 0, 0);
+  };
+  
+  
 
   return (
     <div className="App" onKeyDown={handleKeyDown} tabIndex="0">
@@ -426,6 +495,7 @@ const resizeImage = ({ width, height }) => {
           onClose={closeModal}
           onApply={applyFilter}
           onReset={resetFilter}
+          onPreview={handlePreviewKernel}
           imageData={null} // передайте imageData, если необходимо
         />
       )}

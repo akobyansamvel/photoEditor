@@ -50,16 +50,24 @@ const GrapModal = ({ isOpen, onClose, onApply, onReset, onPreview }) => {
 
   if (!isOpen) return null;
 
-  // Проверка входных данных
+  // Проверка входных данных для Input 1
   const handleInput1Change = (e) => {
-    const value = Number(e.target.value);
-    if (value >= 0 && value < input2) setInput1(value);
+    const value = Math.min(255, Math.max(0, Number(e.target.value)));
+    if (value === '' || (value > 0 && value < input2)) {
+      setInput1(value);
+    }
   };
 
+  // Проверка входных данных для Input 2
   const handleInput2Change = (e) => {
-    const value = Number(e.target.value);
-    if (value > input1 && value <= 255) setInput2(value);
+    const value = Math.min(255, Math.max(0, Number(e.target.value)));
+    if (value === '' || (value > input1 && value <= 255)) {
+      setInput2(value);
+    }
   };
+
+  // Обработчики фокуса
+  const handleFocus = (setter) => () => setter(''); // Очищаем поле при фокусе
 
   // Генерация SVG для кривых
   const generateSVGCurve = () => {
@@ -71,11 +79,9 @@ const GrapModal = ({ isOpen, onClose, onApply, onReset, onPreview }) => {
     return (
       <svg width="200" height="200" className="curve-svg">
         <line x1="0" y1="200" x2="200" y2="0" stroke="#ccc" />
-  
         <line x1="0" y1="200" x2={x1} y2={y1} stroke="blue" strokeWidth="2" />
         <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="blue" strokeWidth="2" />
         <line x1={x2} y1={y2} x2="200" y2="0" stroke="blue" strokeWidth="2" />
-  
         <circle cx={x1} cy={y1} r="4" fill="red" />
         <circle cx={x2} cy={y2} r="4" fill="red" />
       </svg>
@@ -94,8 +100,9 @@ const GrapModal = ({ isOpen, onClose, onApply, onReset, onPreview }) => {
                 type="number"
                 value={input1}
                 onChange={handleInput1Change}
+                onFocus={handleFocus(setInput1)}
                 min="0"
-                max="254"
+                max="255"
               />
             </label>
             <label>
@@ -103,7 +110,8 @@ const GrapModal = ({ isOpen, onClose, onApply, onReset, onPreview }) => {
               <input
                 type="number"
                 value={output1}
-                onChange={(e) => setOutput1(Number(e.target.value))}
+                onChange={(e) => setOutput1(Math.min(255, Math.max(0, Number(e.target.value))))}
+                onFocus={handleFocus(setOutput1)}
                 min="0"
                 max="255"
               />
@@ -116,6 +124,7 @@ const GrapModal = ({ isOpen, onClose, onApply, onReset, onPreview }) => {
                 type="number"
                 value={input2}
                 onChange={handleInput2Change}
+                onFocus={handleFocus(setInput2)}
                 min="1"
                 max="255"
               />
@@ -125,7 +134,8 @@ const GrapModal = ({ isOpen, onClose, onApply, onReset, onPreview }) => {
               <input
                 type="number"
                 value={output2}
-                onChange={(e) => setOutput2(Number(e.target.value))}
+                onChange={(e) => setOutput2(Math.min(255, Math.max(0, Number(e.target.value))))}
+                onFocus={handleFocus(setOutput2)}
                 min="0"
                 max="255"
               />
