@@ -32,9 +32,43 @@ export const rgbToLch = (rgb) => {
   return [l, c, h];
 };
 
-export const rgbToOKLch = (rgb) => {
-  return [0, 0, 0]; 
+// Конвертация RGB в линейное RGB
+const linearRgb = (rgb) => {
+  return rgb.map(v => {
+    let scaled = v / 255;
+    return scaled <= 0.04045 ? scaled / 12.92 : Math.pow((scaled + 0.055) / 1.055, 2.4);
+  });
 };
+
+// Преобразование линейного RGB в OKLab
+const rgbToOklab = (rgb) => {
+  const [r, g, b] = linearRgb(rgb);
+  const lms = [
+    0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b,
+    0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b,
+    0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b,
+  ];
+
+  const l = Math.cbrt(lms[0]);
+  const m = Math.cbrt(lms[1]);
+  const s = Math.cbrt(lms[2]);
+
+  const okL = 0.2104542553 * l + 0.7936177850 * m - 0.0040720468 * s;
+  const okA = 1.9779984951 * l - 2.4285922050 * m + 0.4505937099 * s;
+  const okB = 0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * s;
+
+  return [okL, okA, okB];
+};
+
+// Преобразование OKLab в OKLch
+export const rgbToOKLch = (rgb) => {
+  const [okL, okA, okB] = rgbToOklab(rgb);
+  const c = Math.sqrt(okA ** 2 + okB ** 2);  // Хроматичность (C)
+  const h = Math.atan2(okB, okA) * (180 / Math.PI);  // Оттенок (H)
+  
+  return [okL, c, h];  // Возвращаем L (светлота), C (хроматичность), H (оттенок)
+};
+
 
 export const calculateContrast = (color1, color2) => {
   const luminance = (rgb) => {
@@ -48,8 +82,6 @@ export const calculateContrast = (color1, color2) => {
 };
 
 
-export const calculateAPCA = (color1, color2) => {
-  return 0; 
-};
+
 
 

@@ -18,7 +18,6 @@ const GrapModal = ({ isOpen, onClose, onApply, onReset, onPreview }) => {
     }
   }, [input1, output1, input2, output2, previewEnabled]);
 
-  // Генерация LUT
   const generateLUT = () => {
     const lut = new Array(256);
     for (let i = 0; i < 256; i++) {
@@ -33,13 +32,11 @@ const GrapModal = ({ isOpen, onClose, onApply, onReset, onPreview }) => {
     return lut;
   };
 
-  // Применение изменений
   const handleApply = () => {
     const lut = generateLUT();
     onApply(lut);
   };
 
-  // Сброс значений
   const handleReset = () => {
     setInput1(0);
     setOutput1(0);
@@ -50,7 +47,6 @@ const GrapModal = ({ isOpen, onClose, onApply, onReset, onPreview }) => {
 
   if (!isOpen) return null;
 
-  // Проверка входных данных для Input 1
   const handleInput1Change = (e) => {
     const value = Math.min(255, Math.max(0, Number(e.target.value)));
     if (value === '' || (value > 0 && value < input2)) {
@@ -58,7 +54,6 @@ const GrapModal = ({ isOpen, onClose, onApply, onReset, onPreview }) => {
     }
   };
 
-  // Проверка входных данных для Input 2
   const handleInput2Change = (e) => {
     const value = Math.min(255, Math.max(0, Number(e.target.value)));
     if (value === '' || (value > input1 && value <= 255)) {
@@ -66,33 +61,79 @@ const GrapModal = ({ isOpen, onClose, onApply, onReset, onPreview }) => {
     }
   };
 
-  // Обработчики фокуса
-  const handleFocus = (setter) => () => setter(''); // Очищаем поле при фокусе
+  const handleFocus = (setter) => () => setter('');
 
-  // Генерация SVG для кривых
   const generateSVGCurve = () => {
-    const x1 = (input1 / 255) * 200;
-    const x2 = (input2 / 255) * 200;
-    const y1 = 200 - (output1 / 255) * 200;
-    const y2 = 200 - (output2 / 255) * 200;
+    const x1 = (input1 / 255) * 250; // Изменяем ширину на 250
+    const x2 = (input2 / 255) * 250; // Изменяем ширину на 250
+    const y1 = 250 - (output1 / 255) * 250; // Изменяем высоту на 250
+    const y2 = 250 - (output2 / 255) * 250; // Изменяем высоту на 250
+  
+    const redHistogram = Array.from({ length: 256 }, () => Math.random() * 200);
+    const greenHistogram = Array.from({ length: 256 }, () => Math.random() * 200);
+    const blueHistogram = Array.from({ length: 256 }, () => Math.random() * 200);
+    const barWidth = 2; // Ширина каждого столбика
+const totalBars = redHistogram.length; // Общее количество столбиков
+const spacing = (250 - (totalBars * barWidth)) / (totalBars + 1); // Промежутки между столбиками
 
-    return (
-      <svg width="200" height="200" className="curve-svg">
-        <line x1="0" y1="200" x2="200" y2="0" stroke="#ccc" />
-        <line x1="0" y1="200" x2={x1} y2={y1} stroke="blue" strokeWidth="2" />
-        <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="blue" strokeWidth="2" />
-        <line x1={x2} y1={y2} x2="200" y2="0" stroke="blue" strokeWidth="2" />
-        <circle cx={x1} cy={y1} r="4" fill="red" />
-        <circle cx={x2} cy={y2} r="4" fill="red" />
-      </svg>
-    );
-  };
+return (
+  <svg width="250" height="250" className="curve-svg">
+    {/* Гистограмма для красного канала */}
+    {redHistogram.map((value, index) => (
+      <rect
+        key={`red-${index}`}
+        x={(index * (barWidth + spacing)) + spacing} // Смещение по оси X
+        y={250 - value} // Смещение по оси Y прижато к низу
+        width={barWidth} // Ширина столбика
+        height={value} // Высота столбика
+        fill="rgba(255, 0, 0, 0.5)"
+      />
+    ))}
+
+    {/* Гистограмма для зеленого канала */}
+    {greenHistogram.map((value, index) => (
+      <rect
+        key={`green-${index}`}
+        x={(index * (barWidth + spacing)) + spacing + barWidth} // Смещение по оси X
+        y={250 - value} // Смещение по оси Y прижато к низу
+        width={barWidth} // Ширина столбика
+        height={value} // Высота столбика
+        fill="rgba(0, 255, 0, 0.5)"
+      />
+    ))}
+
+    {/* Гистограмма для синего канала */}
+    {blueHistogram.map((value, index) => (
+      <rect
+        key={`blue-${index}`}
+        x={(index * (barWidth + spacing)) + spacing + (barWidth * 2)} // Смещение по оси X
+        y={250 - value} // Смещение по оси Y прижато к низу
+        width={barWidth} // Ширина столбика
+        height={value} // Высота столбика
+        fill="rgba(0, 0, 255, 0.5)"
+      />
+    ))}
+
+    {/* Кривая, соединяющая точки */}
+    <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="black" strokeWidth="2" />
+
+    {/* Точки */}
+    <circle cx={x1} cy={y1} r="4" fill="red" />
+    <circle cx={x2} cy={y2} r="4" fill="red" />
+
+    {/* Линии слева и справа от точек */}
+    <line x1="0" y1={y1} x2={x1} y2={y1} stroke="green" strokeDasharray="4" />
+    <line x1={x2} y1={y2} x2="250" y2={y2} stroke="green" strokeDasharray="4" />
+  </svg>
+);
+  }
+  
 
   return (
     <div className="curves-modal-overlay">
       <div className="curves-modal">
-        <h2>Градационная коррекция</h2>
-        <div className="curves-inputs">
+        <h2 style={{ textAlign: 'center', marginBottom: '10px' }}>Градационная коррекция</h2>
+        <div className="curves-inputs" style={{ display: 'flex', justifyContent: 'space-around', marginBottom: '10px' }}>
           <div>
             <label>
               Вход 1:
@@ -103,6 +144,7 @@ const GrapModal = ({ isOpen, onClose, onApply, onReset, onPreview }) => {
                 onFocus={handleFocus(setInput1)}
                 min="0"
                 max="255"
+                style={{ margin: '0 5px' }}
               />
             </label>
             <label>
@@ -114,6 +156,7 @@ const GrapModal = ({ isOpen, onClose, onApply, onReset, onPreview }) => {
                 onFocus={handleFocus(setOutput1)}
                 min="0"
                 max="255"
+                style={{ margin: '0 5px' }}
               />
             </label>
           </div>
@@ -127,6 +170,7 @@ const GrapModal = ({ isOpen, onClose, onApply, onReset, onPreview }) => {
                 onFocus={handleFocus(setInput2)}
                 min="1"
                 max="255"
+                style={{ margin: '0 5px' }}
               />
             </label>
             <label>
@@ -138,16 +182,17 @@ const GrapModal = ({ isOpen, onClose, onApply, onReset, onPreview }) => {
                 onFocus={handleFocus(setOutput2)}
                 min="0"
                 max="255"
+                style={{ margin: '0 5px' }}
               />
             </label>
           </div>
         </div>
 
-        <div className="curves-chart">
-          {generateSVGCurve()} 
+        <div className="curves-chart" style={{ display: 'flex', justifyContent: 'center', marginBottom: '10px' }}>
+          {generateSVGCurve()}
         </div>
 
-        <div className="curves-controls">
+        <div className="curves-controls" style={{ display: 'flex', justifyContent: 'space-around' }}>
           <label>
             <input
               type="checkbox"

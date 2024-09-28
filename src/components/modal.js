@@ -8,6 +8,11 @@ function ResizeModal({ isOpen, onClose, imageWidth, imageHeight, onResize }) {
   const [maintainAspectRatio, setMaintainAspectRatio] = useState(true);
   const [interpolation, setInterpolation] = useState('nearest');
 
+  // Подсчет общего количества пикселей в мегапикселях
+  const getMegapixels = (width, height) => {
+    return ((width * height) / 1000000).toFixed(2); // Преобразование в мегапиксели
+  };
+
   useEffect(() => {
     setWidth(100);
     setHeight(100);
@@ -45,6 +50,11 @@ function ResizeModal({ isOpen, onClose, imageWidth, imageHeight, onResize }) {
 
   if (!isOpen) return null;
 
+  // Подсчет пикселей для текущего и нового размера
+  const originalMegapixels = getMegapixels(imageWidth, imageHeight);
+  const newWidth = units === 'percent' ? Math.round((imageWidth * width) / 100) : width;
+  const newHeight = units === 'percent' ? Math.round((imageHeight * height) / 100) : height;
+  const newMegapixels = getMegapixels(newWidth, newHeight);
 
   return (
     <div className="modal-overlay">
@@ -86,6 +96,13 @@ function ResizeModal({ isOpen, onClose, imageWidth, imageHeight, onResize }) {
             </span>
           </div>
         </div>
+        
+        {/* Информация о пикселях */}
+        <div>
+          <p>Исходное разрешение: {imageWidth}x{imageHeight} пикселей ({originalMegapixels} MP)</p>
+          <p>Новое разрешение: {newWidth}x{newHeight} пикселей ({newMegapixels} MP)</p>
+        </div>
+        
         <div className="modal-buttons">
           <button onClick={handleResize}>Применить</button>
           <button onClick={onClose}>Отмена</button>

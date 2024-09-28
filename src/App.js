@@ -127,33 +127,29 @@ const resizeImage = ({ width, height }) => {
 
 
 
-  // Сохранение изображения в локальный файл
-  const saveImage = () => {
-    const canvas = canvasRef.current;
+const saveImage = () => {
+  const canvas = canvasRef.current;
+  
+  // Создаем временный канвас с размерами отображаемого изображения
+  const tempCanvas = document.createElement('canvas');
+  tempCanvas.width = displayedDimensions.width;
+  tempCanvas.height = displayedDimensions.height;
+  const tempCtx = tempCanvas.getContext('2d');
+  
+  // Рисуем изображение с канваса на временный канвас
+  const img = new Image();
+  img.src = canvas.toDataURL(); // Используем текущее изображение из основного канваса
+  img.onload = () => {
+    tempCtx.drawImage(img, 0, 0, displayedDimensions.width, displayedDimensions.height);
+    
+    // Сохраняем изображение из временного канваса
     const link = document.createElement('a');
-    link.href = canvas.toDataURL();
+    link.href = tempCanvas.toDataURL();
     link.download = 'resized_image.png';
     link.click();
   };
-  const drawImageWithOriginalSize = (image, offsetX = 0, offsetY = 0, scale = 100) => {
-  const canvas = canvasRef.current;
-  const context = canvas.getContext('2d');
-
-  // Очищаем холст перед отрисовкой
-  context.clearRect(0, 0, canvas.width, canvas.height);
-
-  const scaledWidth = (image.width * scale) / 100;
-  const scaledHeight = (image.height * scale) / 100;
-
-  // Рассчитываем новую позицию для отрисовки с учётом смещения
-  const drawX = offsetX;
-  const drawY = offsetY;
-
-  // Ограничиваем отображение изображением рамками канваса
-  context.drawImage(image, drawX, drawY, scaledWidth, scaledHeight);
-
-  setDisplayedDimensions({ width: scaledWidth, height: scaledHeight });
 };
+
 
 
   // Эффект для загрузки и рисования изображения на холсте
