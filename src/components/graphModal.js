@@ -35,6 +35,7 @@ const GrapModal = ({ isOpen, onClose, onApply, onReset, onPreview }) => {
   const handleApply = () => {
     const lut = generateLUT();
     onApply(lut);
+    // Не сбрасываем состояние после применения
   };
 
   const handleReset = () => {
@@ -42,10 +43,25 @@ const GrapModal = ({ isOpen, onClose, onApply, onReset, onPreview }) => {
     setOutput1(0);
     setInput2(255);
     setOutput2(255);
+    setPreviewEnabled(false);
     onReset();
   };
 
+  const handlePreviewChange = (e) => {
+    const isChecked = e.target.checked;
+    setPreviewEnabled(isChecked);
+    // Сброс состояния при снятии галочки
+    if (!isChecked) {
+      handleReset();
+    }
+  };
+
   if (!isOpen) return null;
+
+  const handleClose = () => {
+    setPreviewEnabled(false); // Сброс состояния предпросмотра при закрытии
+    onClose();
+  };
 
   const handleInput1Change = (e) => {
     const value = Math.min(255, Math.max(0, Number(e.target.value)));
@@ -64,70 +80,58 @@ const GrapModal = ({ isOpen, onClose, onApply, onReset, onPreview }) => {
   const handleFocus = (setter) => () => setter('');
 
   const generateSVGCurve = () => {
-    const x1 = (input1 / 255) * 250; // Изменяем ширину на 250
-    const x2 = (input2 / 255) * 250; // Изменяем ширину на 250
-    const y1 = 250 - (output1 / 255) * 250; // Изменяем высоту на 250
-    const y2 = 250 - (output2 / 255) * 250; // Изменяем высоту на 250
-  
+    const x1 = (input1 / 255) * 250;
+    const x2 = (input2 / 255) * 250;
+    const y1 = 250 - (output1 / 255) * 250;
+    const y2 = 250 - (output2 / 255) * 250;
+
     const redHistogram = Array.from({ length: 256 }, () => Math.random() * 200);
     const greenHistogram = Array.from({ length: 256 }, () => Math.random() * 200);
     const blueHistogram = Array.from({ length: 256 }, () => Math.random() * 200);
-    const barWidth = 2; // Ширина каждого столбика
-const totalBars = redHistogram.length; // Общее количество столбиков
-const spacing = (250 - (totalBars * barWidth)) / (totalBars + 1); // Промежутки между столбиками
+    const barWidth = 2;
+    const totalBars = redHistogram.length;
+    const spacing = (250 - (totalBars * barWidth)) / (totalBars + 1);
 
-return (
-  <svg width="250" height="250" className="curve-svg">
-    {/* Гистограмма для красного канала */}
-    {redHistogram.map((value, index) => (
-      <rect
-        key={`red-${index}`}
-        x={(index * (barWidth + spacing)) + spacing} // Смещение по оси X
-        y={250 - value} // Смещение по оси Y прижато к низу
-        width={barWidth} // Ширина столбика
-        height={value} // Высота столбика
-        fill="rgba(255, 0, 0, 0.5)"
-      />
-    ))}
-
-    {/* Гистограмма для зеленого канала */}
-    {greenHistogram.map((value, index) => (
-      <rect
-        key={`green-${index}`}
-        x={(index * (barWidth + spacing)) + spacing + barWidth} // Смещение по оси X
-        y={250 - value} // Смещение по оси Y прижато к низу
-        width={barWidth} // Ширина столбика
-        height={value} // Высота столбика
-        fill="rgba(0, 255, 0, 0.5)"
-      />
-    ))}
-
-    {/* Гистограмма для синего канала */}
-    {blueHistogram.map((value, index) => (
-      <rect
-        key={`blue-${index}`}
-        x={(index * (barWidth + spacing)) + spacing + (barWidth * 2)} // Смещение по оси X
-        y={250 - value} // Смещение по оси Y прижато к низу
-        width={barWidth} // Ширина столбика
-        height={value} // Высота столбика
-        fill="rgba(0, 0, 255, 0.5)"
-      />
-    ))}
-
-    {/* Кривая, соединяющая точки */}
-    <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="black" strokeWidth="2" />
-
-    {/* Точки */}
-    <circle cx={x1} cy={y1} r="4" fill="red" />
-    <circle cx={x2} cy={y2} r="4" fill="red" />
-
-    {/* Линии слева и справа от точек */}
-    <line x1="0" y1={y1} x2={x1} y2={y1} stroke="green" strokeDasharray="4" />
-    <line x1={x2} y1={y2} x2="250" y2={y2} stroke="green" strokeDasharray="4" />
-  </svg>
-);
-  }
-  
+    return (
+      <svg width="250" height="250" className="curve-svg">
+        {redHistogram.map((value, index) => (
+          <rect
+            key={`red-${index}`}
+            x={(index * (barWidth + spacing)) + spacing}
+            y={250 - value}
+            width={barWidth}
+            height={value}
+            fill="rgba(255, 0, 0, 0.5)"
+          />
+        ))}
+        {greenHistogram.map((value, index) => (
+          <rect
+            key={`green-${index}`}
+            x={(index * (barWidth + spacing)) + spacing + barWidth}
+            y={250 - value}
+            width={barWidth}
+            height={value}
+            fill="rgba(0, 255, 0, 0.5)"
+          />
+        ))}
+        {blueHistogram.map((value, index) => (
+          <rect
+            key={`blue-${index}`}
+            x={(index * (barWidth + spacing)) + spacing + (barWidth * 2)}
+            y={250 - value}
+            width={barWidth}
+            height={value}
+            fill="rgba(0, 0, 255, 0.5)"
+          />
+        ))}
+        <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="black" strokeWidth="2" />
+        <circle cx={x1} cy={y1} r="4" fill="red" />
+        <circle cx={x2} cy={y2} r="4" fill="red" />
+        <line x1="0" y1={y1} x2={x1} y2={y1} stroke="green" strokeDasharray="4" />
+        <line x1={x2} y1={y2} x2="250" y2={y2} stroke="green" strokeDasharray="4" />
+      </svg>
+    );
+  };
 
   return (
     <div className="curves-modal-overlay">
@@ -192,18 +196,15 @@ return (
           {generateSVGCurve()}
         </div>
 
-        <div className="curves-controls" style={{ display: 'flex', justifyContent: 'space-around' }}>
-          <label>
-            <input
-              type="checkbox"
-              checked={previewEnabled}
-              onChange={(e) => setPreviewEnabled(e.target.checked)}
-            />
-            Предпросмотр
-          </label>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
           <button onClick={handleApply}>Применить</button>
           <button onClick={handleReset}>Сбросить</button>
-          <button onClick={onClose}>Закрыть</button>
+          <button onClick={handleClose}>Закрыть</button>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', marginTop: '10px' }}>
+          <input type="checkbox" checked={previewEnabled} onChange={handlePreviewChange} />
+          <label style={{ marginLeft: '5px' }}>Предварительный просмотр</label>
         </div>
       </div>
     </div>

@@ -1,11 +1,11 @@
-import React, { useState, useRef, useEffect } from 'react';
-import './styles/App.css';
-import ResizeModal from './components/modal';
-import Toolbar from './components/toolbar';
-import PipetteInfo from './components/pipet';
-import GrapModal from './components/graphModal'; 
-import { rgbToXyz, rgbToLab, rgbToLch, rgbToOKLch} from './utils';
+import React, { useEffect, useRef, useState } from 'react';
+import GrapModal from './components/graphModal';
 import ConvolutionFilterModal from './components/KernelModal';
+import ResizeModal from './components/modal';
+import PipetteInfo from './components/pipet';
+import Toolbar from './components/toolbar';
+import './styles/App.css';
+import { rgbToLab, rgbToLch, rgbToOKLch, rgbToXyz } from './utils';
 
 function App() {
   const [image, setImage] = useState(null);

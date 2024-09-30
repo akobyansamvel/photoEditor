@@ -40,7 +40,9 @@
     margin-right: 10px;
     border-radius: 4px;
   }
-  
+  .color-details{
+    text-align: left;
+  }
   .color-details p {
     margin: 0;
     font-size: 14px;

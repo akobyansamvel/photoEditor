@@ -19,20 +19,21 @@ function ResizeModal({ isOpen, onClose, imageWidth, imageHeight, onResize }) {
   }, [imageWidth, imageHeight]);
 
   const handleWidthChange = (e) => {
-    const newWidth = Math.round(e.target.value);
+    const newWidth = e.target.value.trim() === '' ? '' : Math.round(e.target.value);
     setWidth(newWidth);
-    if (maintainAspectRatio) {
+    if (newWidth !== '' && maintainAspectRatio) {
       setHeight(Math.round((newWidth * imageHeight) / imageWidth));
     }
   };
-
+  
   const handleHeightChange = (e) => {
-    const newHeight = Math.round(e.target.value);
+    const newHeight = e.target.value.trim() === '' ? '' : Math.round(e.target.value);
     setHeight(newHeight);
-    if (maintainAspectRatio) {
+    if (newHeight !== '' && maintainAspectRatio) {
       setWidth(Math.round((newHeight * imageWidth) / imageHeight));
     }
   };
+  
 
   const handleResize = () => {
     let newWidth = width;
