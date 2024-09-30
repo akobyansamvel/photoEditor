@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import '../styles/graphModal.css';
+import { Line } from 'react-chartjs-2';
+import { Chart, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
+
+Chart.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 const GrapModal = ({ isOpen, onClose, onApply, onReset, onPreview }) => {
   const [input1, setInput1] = useState(0);
@@ -79,58 +83,46 @@ const GrapModal = ({ isOpen, onClose, onApply, onReset, onPreview }) => {
 
   const handleFocus = (setter) => () => setter('');
 
-  const generateSVGCurve = () => {
-    const x1 = (input1 / 255) * 250;
-    const x2 = (input2 / 255) * 250;
-    const y1 = 250 - (output1 / 255) * 250;
-    const y2 = 250 - (output2 / 255) * 250;
-
+  const generateHistograms = () => {
     const redHistogram = Array.from({ length: 256 }, () => Math.random() * 200);
     const greenHistogram = Array.from({ length: 256 }, () => Math.random() * 200);
     const blueHistogram = Array.from({ length: 256 }, () => Math.random() * 200);
-    const barWidth = 2;
-    const totalBars = redHistogram.length;
-    const spacing = (250 - (totalBars * barWidth)) / (totalBars + 1);
+    return { redHistogram, greenHistogram, blueHistogram };
+  };
 
-    return (
-      <svg width="250" height="250" className="curve-svg">
-        {redHistogram.map((value, index) => (
-          <rect
-            key={`red-${index}`}
-            x={(index * (barWidth + spacing)) + spacing}
-            y={250 - value}
-            width={barWidth}
-            height={value}
-            fill="rgba(255, 0, 0, 0.5)"
-          />
-        ))}
-        {greenHistogram.map((value, index) => (
-          <rect
-            key={`green-${index}`}
-            x={(index * (barWidth + spacing)) + spacing + barWidth}
-            y={250 - value}
-            width={barWidth}
-            height={value}
-            fill="rgba(0, 255, 0, 0.5)"
-          />
-        ))}
-        {blueHistogram.map((value, index) => (
-          <rect
-            key={`blue-${index}`}
-            x={(index * (barWidth + spacing)) + spacing + (barWidth * 2)}
-            y={250 - value}
-            width={barWidth}
-            height={value}
-            fill="rgba(0, 0, 255, 0.5)"
-          />
-        ))}
-        <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="black" strokeWidth="2" />
-        <circle cx={x1} cy={y1} r="4" fill="red" />
-        <circle cx={x2} cy={y2} r="4" fill="red" />
-        <line x1="0" y1={y1} x2={x1} y2={y1} stroke="green" strokeDasharray="4" />
-        <line x1={x2} y1={y2} x2="250" y2={y2} stroke="green" strokeDasharray="4" />
-      </svg>
-    );
+  const { redHistogram, greenHistogram, blueHistogram } = generateHistograms();
+
+  const data = {
+    labels: Array.from({ length: 256 }, (_, i) => i),
+    datasets: [
+      {
+        label: 'Curve',
+        data: generateLUT(), // Генерируем LUT для данных графика
+        borderColor: 'rgba(75,192,192,1)',
+        fill: false,
+      },
+      {
+        label: 'Red Histogram',
+        data: redHistogram,
+        borderColor: 'rgba(255, 0, 0, 0.5)',
+        fill: false,
+        pointRadius: 0,
+      },
+      {
+        label: 'Green Histogram',
+        data: greenHistogram,
+        borderColor: 'rgba(0, 255, 0, 0.5)',
+        fill: false,
+        pointRadius: 0,
+      },
+      {
+        label: 'Blue Histogram',
+        data: blueHistogram,
+        borderColor: 'rgba(0, 0, 255, 0.5)',
+        fill: false,
+        pointRadius: 0,
+      },
+    ],
   };
 
   return (
@@ -193,7 +185,7 @@ const GrapModal = ({ isOpen, onClose, onApply, onReset, onPreview }) => {
         </div>
 
         <div className="curves-chart" style={{ display: 'flex', justifyContent: 'center', marginBottom: '10px' }}>
-          {generateSVGCurve()}
+          <Line data={data} />
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
