@@ -27,11 +27,21 @@ const ConvolutionFilterModal = ({ onClose, onApply, onReset, imageData }) => {
   };
 
   // Обработчик изменения значения в поле ввода
-  const handleInputChange = (i, j, value) => {
-    const updatedKernel = [...kernel];
-    updatedKernel[i][j] = parseFloat(value) || 0;
-    setKernel(updatedKernel);
-  };
+ // Обработчик изменения значения в поле ввода
+const handleInputChange = (i, j, value) => {
+  const updatedKernel = [...kernel];
+  
+  // Если значение пустое, оставить поле пустым
+  if (value === '') {
+    updatedKernel[i][j] = '';
+  } else {
+    // Преобразовать введённое значение в число, если не пустое
+    updatedKernel[i][j] = parseFloat(value);
+  }
+
+  setKernel(updatedKernel);
+};
+
 
   // Обработчик выбора предустановки
   const handlePresetSelect = (preset) => {
