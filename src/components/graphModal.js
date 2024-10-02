@@ -39,7 +39,6 @@ const GrapModal = ({ isOpen, onClose, onApply, onReset, onPreview }) => {
   const handleApply = () => {
     const lut = generateLUT();
     onApply(lut);
-    // Не сбрасываем состояние после применения
   };
 
   const handleReset = () => {
@@ -54,7 +53,6 @@ const GrapModal = ({ isOpen, onClose, onApply, onReset, onPreview }) => {
   const handlePreviewChange = (e) => {
     const isChecked = e.target.checked;
     setPreviewEnabled(isChecked);
-    // Сброс состояния при снятии галочки
     if (!isChecked) {
       handleReset();
     }
@@ -63,7 +61,7 @@ const GrapModal = ({ isOpen, onClose, onApply, onReset, onPreview }) => {
   if (!isOpen) return null;
 
   const handleClose = () => {
-    setPreviewEnabled(false); // Сброс состояния предпросмотра при закрытии
+    setPreviewEnabled(false);
     onClose();
   };
 
@@ -97,9 +95,11 @@ const GrapModal = ({ isOpen, onClose, onApply, onReset, onPreview }) => {
     datasets: [
       {
         label: 'Curve',
-        data: generateLUT(), // Генерируем LUT для данных графика
+        data: generateLUT(),
         borderColor: 'rgba(75,192,192,1)',
         fill: false,
+        pointRadius: 4, // Увеличиваем радиус точки для видимости
+        pointStyle: 'circle', // Указываем стиль точек
       },
       {
         label: 'Red Histogram',
@@ -121,6 +121,18 @@ const GrapModal = ({ isOpen, onClose, onApply, onReset, onPreview }) => {
         borderColor: 'rgba(0, 0, 255, 0.5)',
         fill: false,
         pointRadius: 0,
+      },
+      // Добавляем точки для ключевых значений
+      {
+        label: 'Key Points',
+        data: [
+          { x: input1, y: output1 },
+          { x: input2, y: output2 },
+        ],
+        borderColor: 'rgba(255, 255, 0, 1)', // Цвет для ключевых точек
+        backgroundColor: 'rgba(255, 255, 0, 0.8)', // Цвет фона для ключевых точек
+        pointRadius: 6, // Увеличенный радиус для ключевых точек
+        pointStyle: 'triangle', // Указываем стиль точек
       },
     ],
   };
