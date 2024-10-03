@@ -26,9 +26,9 @@ const GrapModal = ({ isOpen, onClose, onApply, onReset, onPreview }) => {
     const lut = new Array(256);
     for (let i = 0; i < 256; i++) {
       if (i <= input1) {
-        lut[i] = (output1 / input1) * i;
+        lut[i] = output1;
       } else if (i >= input2) {
-        lut[i] = ((255 - output2) / (255 - input2)) * (i - input2) + output2;
+        lut[i] = output2;
       } else {
         lut[i] = ((output2 - output1) / (input2 - input1)) * (i - input1) + output1;
       }
@@ -96,10 +96,11 @@ const GrapModal = ({ isOpen, onClose, onApply, onReset, onPreview }) => {
       {
         label: 'Curve',
         data: generateLUT(),
-        borderColor: 'rgba(75,192,192,1)',
+        borderColor: 'rgba(0, 0, 0)',
         fill: false,
-        pointRadius: 4, // Увеличиваем радиус точки для видимости
-        pointStyle: 'circle', // Указываем стиль точек
+        // Добавляем точки только для input1 и input2
+        pointRadius: ({ dataIndex }) => (dataIndex === input1 || dataIndex === input2 ? 4 : 0),
+        pointStyle: 'circle',
       },
       {
         label: 'Red Histogram',
@@ -122,20 +123,9 @@ const GrapModal = ({ isOpen, onClose, onApply, onReset, onPreview }) => {
         fill: false,
         pointRadius: 0,
       },
-      // Добавляем точки для ключевых значений
-      {
-        label: 'Key Points',
-        data: [
-          { x: input1, y: output1 },
-          { x: input2, y: output2 },
-        ],
-        borderColor: 'rgba(255, 255, 0, 1)', // Цвет для ключевых точек
-        backgroundColor: 'rgba(255, 255, 0, 0.8)', // Цвет фона для ключевых точек
-        pointRadius: 6, // Увеличенный радиус для ключевых точек
-        pointStyle: 'triangle', // Указываем стиль точек
-      },
     ],
   };
+  
 
   return (
     <div className="curves-modal-overlay">
@@ -200,16 +190,16 @@ const GrapModal = ({ isOpen, onClose, onApply, onReset, onPreview }) => {
           <Line data={data} />
         </div>
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
+        <div className="curves-buttons" style={{ display: 'flex', justifyContent: 'space-around', marginBottom: '10px' }}>
           <button onClick={handleApply}>Применить</button>
           <button onClick={handleReset}>Сбросить</button>
           <button onClick={handleClose}>Закрыть</button>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', marginTop: '10px' }}>
+        <label style={{ display: 'block', textAlign: 'center', marginBottom: '10px' }}>
           <input type="checkbox" checked={previewEnabled} onChange={handlePreviewChange} />
-          <label style={{ marginLeft: '5px' }}>Предварительный просмотр</label>
-        </div>
+          Включить предпросмотр
+        </label>
       </div>
     </div>
   );
