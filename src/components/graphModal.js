@@ -125,6 +125,26 @@ const GrapModal = ({ isOpen, onClose, onApply, onReset, onPreview }) => {
       },
     ],
   };
+  const options = {
+    scales: {
+      x: {
+        type: 'linear', // Указываем тип оси как линейную
+        min: 0,         // Минимальное значение для оси X
+        max: 255,       // Максимальное значение для оси X
+        ticks: {
+          stepSize: 50, // Шаг для оси X
+        },
+      },
+      y: {
+        min: 0,         // Минимальное значение по оси Y
+        max: 255,       // Максимальное значение по оси Y
+        ticks: {
+          stepSize: 50, // Шаг для оси Y
+        },
+      },
+    },
+  };
+  
   
 
   return (
@@ -187,8 +207,9 @@ const GrapModal = ({ isOpen, onClose, onApply, onReset, onPreview }) => {
         </div>
 
         <div className="curves-chart" style={{ display: 'flex', justifyContent: 'center', marginBottom: '10px' }}>
-          <Line data={data} />
+          <Line data={data} options={options} />
         </div>
+
 
         <div className="curves-buttons" style={{ display: 'flex', justifyContent: 'space-around', marginBottom: '10px' }}>
           <button onClick={handleApply}>Применить</button>
