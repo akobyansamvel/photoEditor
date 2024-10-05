@@ -227,8 +227,6 @@ const handlePreviewCurvesCorrection = (lut) => {
 // Применение коррекции кривых
 const handleCurvesApply = (lut) => {
   applyCurvesCorrection(lut);
-  // Удалите следующую строку, чтобы окно оставалось открытым
-  // setIsCurvesModalOpen(false);
 };
 
 
@@ -435,6 +433,21 @@ const handleCurvesReset = () => {
             <div>Координаты: <br />X: {position.x}px, <br /> Y: {position.y}px</div>
             <div className="color">Цвет: <br /> {color}</div>   
             <div style={{ backgroundColor: color, width: 150, height: 30, marginTop: 10 }}></div>
+            <div className="scale-selector">
+            <label htmlFor="scale">Масштаб:</label>
+           <input
+            id="scale"
+            type="range"
+            min="12"
+            max="300"
+            value={scale}
+            step="1"
+            onChange={(e) => setScale(e.target.value)}
+            style={{ width: '100%' }}
+          />
+            <span>{scale}%</span>
+          </div>
+          <button className='size_button' onClick={() => setIsModalOpen(true)}>Изменить размер</button>
           </div>
         )}
         <div className="test">
@@ -468,21 +481,7 @@ const handleCurvesReset = () => {
             </div>
           
           </div>
-          <div className="scale-selector">
-            <label htmlFor="scale">Масштаб:</label>
-           <input
-            id="scale"
-            type="range"
-            min="12"
-            max="300"
-            value={scale}
-            step="1"
-            onChange={(e) => setScale(e.target.value)}
-            style={{ width: '100%' }}
-          />
-            <span>{scale}%</span>
-          </div>
-          <button className='size_button' onClick={() => setIsModalOpen(true)}>Изменить размер</button>
+      
           <button className='save_button' onClick={saveImage}>Сохранить</button>
         </div>
       </div>

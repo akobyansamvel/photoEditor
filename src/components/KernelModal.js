@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import '../styles/KernelModal.css';
 
 const ConvolutionFilterModal = ({ onClose, onApply, onReset, imageData }) => {
@@ -26,21 +26,21 @@ const ConvolutionFilterModal = ({ onClose, onApply, onReset, imageData }) => {
     laplacian: [[0, -1, 0], [-1, 4, -1], [0, -1, 0]],
   };
 
-  // Обработчик изменения значения в поле ввода
- // Обработчик изменения значения в поле ввода
+
 const handleInputChange = (i, j, value) => {
   const updatedKernel = [...kernel];
   
-  // Если значение пустое, оставить поле пустым
   if (value === '') {
     updatedKernel[i][j] = '';
   } else {
-    // Преобразовать введённое значение в число, если не пустое
-    updatedKernel[i][j] = parseFloat(value);
+
+    const numberValue = Math.min(parseFloat(value), 100);
+    updatedKernel[i][j] = numberValue;
   }
 
   setKernel(updatedKernel);
 };
+
 
 
   // Обработчик выбора предустановки
@@ -132,6 +132,7 @@ const handleInputChange = (i, j, value) => {
                     type="number"
                     value={value}
                     onChange={(e) => handleInputChange(i, j, e.target.value)}
+                    max={100}
                   />
                 </td>
               ))}

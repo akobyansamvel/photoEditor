@@ -19,20 +19,23 @@ function ResizeModal({ isOpen, onClose, imageWidth, imageHeight, onResize }) {
   }, [imageWidth, imageHeight]);
 
   const handleWidthChange = (e) => {
-    const newWidth = e.target.value.trim() === '' ? '' : Math.round(e.target.value);
+    const newWidth = e.target.value.trim() === '' ? '' : Math.min(Math.round(e.target.value), 9999); 
     setWidth(newWidth);
+    
     if (newWidth !== '' && maintainAspectRatio) {
       setHeight(Math.round((newWidth * imageHeight) / imageWidth));
     }
   };
   
   const handleHeightChange = (e) => {
-    const newHeight = e.target.value.trim() === '' ? '' : Math.round(e.target.value);
+    const newHeight = e.target.value.trim() === '' ? '' : Math.min(Math.round(e.target.value), 9999); 
     setHeight(newHeight);
+    
     if (newHeight !== '' && maintainAspectRatio) {
       setWidth(Math.round((newHeight * imageWidth) / imageHeight));
     }
   };
+  
   
 
   const handleResize = () => {
@@ -70,11 +73,21 @@ function ResizeModal({ isOpen, onClose, imageWidth, imageHeight, onResize }) {
         </div>
         <div>
           <label>Ширина:</label>
-          <input type="number" value={width} onChange={handleWidthChange} />
+          <input
+            type="number"
+            value={width}
+            onChange={handleWidthChange}
+            max={9999} 
+          />
         </div>
         <div>
           <label>Высота:</label>
-          <input type="number" value={height} onChange={handleHeightChange} />
+          <input
+            type="number"
+            value={height}
+            onChange={handleHeightChange}
+            max={9999} 
+          />
         </div>
         <div>
           <label>

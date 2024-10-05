@@ -1,6 +1,5 @@
-
 .App {
-  padding-top: 70px;
+  padding-top: 120px; /* Увеличиваем отступ, чтобы оставить место для панели сверху */
   padding-bottom: 20px;
   text-align: center;
   background-color: #ffffff;
@@ -8,20 +7,33 @@
   font-size: calc(10px + 2vmin);
   color: rgb(0, 0, 0);
 }
+
 .color-info {
   display: flex;
-  align-items: left;
-  flex-direction: column;
-  position: sticky;
-  text-align: left;
-  min-width: 200px;
-  margin: 10px;
-  right: 20px;
-  top: 60px;
-  bottom: 60px;
+  justify-content: space-between;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 10px 20px;
+  background-color: #f8f8f8;
+  border-bottom: 1px solid #ddd;
+  z-index: 1000;
 }
+
+.color-info div {
+  margin-right: 20px;
+}
+
 .image-size {
-  margin-bottom: 10px;
+  display: inline-block;
+  margin-right: 20px;
+}
+
+.slider-container {
+  display: inline-block;
+  margin-right: 20px;
 }
 
 .load {
@@ -32,19 +44,9 @@
   justify-content: center;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
 .text {
   display: flex;
   flex-direction: column;
-}
-
-
-.App-link {
-  color: #61dafb;
 }
 
 .color {
@@ -52,32 +54,22 @@
   display: flex;
 }
 
-.uploader__upload-button {
-  opacity: 0;
-  position: absolute;
-  z-index: -1;
-}
-
-.uploader__button {
-  cursor: pointer;
+.size_button {
+  background-color: #40ff00;
+  border-color: #40ff00;
   color: white;
-  background-color: #40ff00;
-  border: 1px solid #40ff00;
-  border-radius: 12px;
-  padding: 15px;
-  transition: background-color 0.3s ease;
+  width: 140px;
+  height: 30px;
+  border-radius: 10px;
 }
 
-.uploader__button:hover {
+.save_button {
   background-color: #40ff00;
-}
-
-.uploader {
-  display: flex;
-  justify-content: center;
-  flex-direction: row-reverse;
-  align-items: center;
-  gap: 12px;
+  border-color: #40ff00;
+  color: white;
+  width: 100px;
+  height: 30px;
+  border-radius: 10px;
 }
 
 .uploader__preview {
@@ -90,6 +82,15 @@
 .uploader__canvas {
   height: auto;
   width: auto;
+  border: 1px solid black;
+}
+
+.canvas-container {
+  position: relative;
+  overflow: auto;
+  max-width: 1000px;
+  max-height: 600px;
+  margin: 80px auto 0;
 }
 
 .url-button {
@@ -99,48 +100,8 @@
   border: 1px solid #40ff00;
   border-radius: 8px;
   padding: 10px;
-
-}
-
-.size_button{
-  background-color: #40ff00;
-  border-color: #40ff00;
-  color: white;
-  width: 140px;
-  height: 30px;
-  border-radius: 10px;
-  
-}
-
-.save_button{
-  background-color: #40ff00;
-  border-color: #40ff00;
-  color: white;
-  width: 100px;
-  height: 30px;
-  border-radius: 10px;
 }
 
 .url-button:hover {
   background-color: #218838;
 }
-
-.url-input {
-  padding: 5px;
-}
-
-.url-uploader {
-  margin-top: 5px;
-}
-.uploader__canvas {
-  border: 1px solid black;
-}
-
-
-.canvas-container {
-  position: relative;
-  overflow: auto; 
-  max-width: 1000px; 
-  max-height: 600px; 
-}
-
