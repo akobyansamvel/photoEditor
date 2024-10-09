@@ -24,6 +24,7 @@ function App() {
   const [imageOffset, setImageOffset] = useState({ x: 0, y: 0 }); 
   const canvasRef = useRef(null);
   const fileReader = useRef(new FileReader());
+  const [resizedDimensions, setResizedDimensions] = useState(null);
 
   const FIXED_CANVAS_WIDTH = 1000; 
   const FIXED_CANVAS_HEIGHT = 600; 
@@ -91,12 +92,12 @@ function App() {
   };
 
   // Рисование изображения на холсте
-  const drawImage = (img, scale, offsetX = 0, offsetY = 0) => {
+  const drawImage = (img, scale, offsetX = 0, offsetY = 0, width = img.width, height = img.height) => {
     const canvas = canvasRef.current;
     const context = canvas.getContext('2d');
 
-    const scaledWidth = (img.width * scale) / 100;
-    const scaledHeight = (img.height * scale) / 100;
+    const scaledWidth = (width * scale) / 100;
+    const scaledHeight = (height * scale) / 100;
 
     const drawX = offsetX + (FIXED_CANVAS_WIDTH - scaledWidth) / 2;
     const drawY = offsetY + (FIXED_CANVAS_HEIGHT - scaledHeight) / 2;
@@ -122,6 +123,7 @@ const resizeImage = ({ width, height }) => {
 
     context.drawImage(img, offsetX, offsetY, width, height);
     setDisplayedDimensions({ width: width, height: height }); 
+    setResizedDimensions({ width: width, height: height });
   };
 };
 
@@ -159,13 +161,18 @@ const saveImage = () => {
     img.src = imageURL;
     img.onload = () => {
       setOriginalDimensions({ width: img.width, height: img.height });
-      setDisplayedDimensions({ width: img.width, height: img.height });
-      drawImage(img, scale, imageOffset.x, imageOffset.y);
+      if (resizedDimensions) {
+        setDisplayedDimensions(resizedDimensions);
+        drawImage(img, scale, imageOffset.x, imageOffset.y, resizedDimensions.width, resizedDimensions.height);
+      } else {
+        setDisplayedDimensions({ width: img.width, height: img.height });
+        drawImage(img, scale, imageOffset.x, imageOffset.y);
+      }
     };
     img.onerror = () => {
       alert('Ошибка при загрузке изображения. Проверьте URL.');
     };
-  }, [imageURL, scale, imageOffset]);
+  }, [imageURL, scale, imageOffset, resizedDimensions]);
 
 
   const handleKeyDown = (e) => {
