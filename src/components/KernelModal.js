@@ -1,23 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../styles/KernelModal.css';
 
-const ConvolutionFilterModal = ({ onClose, onApply, onReset, imageData }) => {
+const ConvolutionFilterModal = ({ onClose, onApply, onReset, onPreview }) => {
   const initialKernel = [
     [0, 0, 0],
     [0, 1, 0],
     [0, 0, 0]
   ];
 
-  // Состояние для ядра свертки
   const [kernel, setKernel] = useState(initialKernel);
-  const [appliedKernel, setAppliedKernel] = useState(initialKernel); // Состояние для последнего применённого ядра
-
-  // Состояние для предпросмотра
   const [preview, setPreview] = useState(false);
-  const [previewImageData, setPreviewImageData] = useState(null); // Для хранения предпросмотра
-  const [previewImageUrl, setPreviewImageUrl] = useState(null); // URL для предпросмотра
 
-  // Предустановленные ядра
   const presets = {
     identity: [[0, 0, 0], [0, 1, 0], [0, 0, 0]],
     sharpen: [[0, -1, 0], [-1, 5, -1], [0, -1, 0]],
@@ -26,105 +19,64 @@ const ConvolutionFilterModal = ({ onClose, onApply, onReset, imageData }) => {
     laplacian: [[0, -1, 0], [-1, 4, -1], [0, -1, 0]],
   };
 
+  const handleInputChange = (i, j, value) => {
+    const updatedKernel = kernel.map(row => [...row]);
+    
+    if (value === '') {
+      updatedKernel[i][j] = '';
+    } else {
+      const numberValue = Math.min(parseFloat(value), 100);
+      updatedKernel[i][j] = numberValue;
+    }
 
-const handleInputChange = (i, j, value) => {
-  const updatedKernel = [...kernel];
-  
-  if (value === '') {
-    updatedKernel[i][j] = '';
-  } else {
+    setKernel(updatedKernel);
+    if (preview) {
+      onPreview(updatedKernel);
+    }
+  };
 
-    const numberValue = Math.min(parseFloat(value), 100);
-    updatedKernel[i][j] = numberValue;
-  }
-
-  setKernel(updatedKernel);
-};
-
-
-
-  // Обработчик выбора предустановки
   const handlePresetSelect = (preset) => {
-    setKernel(presets[preset]);
-  };
-
-  // Применение фильтра
-  const applyFilter = (kernel, imageData) => {
-    const { data, width, height } = imageData;
-    const newImageData = new ImageData(width, height);
-
-    for (let y = 1; y < height - 1; y++) {
-      for (let x = 1; x < width - 1; x++) {
-        let sumR = 0, sumG = 0, sumB = 0;
-
-        for (let i = -1; i <= 1; i++) {
-          for (let j = -1; j <= 1; j++) {
-            const index = ((y + i) * width + (x + j)) * 4;
-            sumR += data[index] * kernel[i + 1][j + 1];
-            sumG += data[index + 1] * kernel[i + 1][j + 1];
-            sumB += data[index + 2] * kernel[i + 1][j + 1];
-          }
-        }
-
-        const newIndex = (y * width + x) * 4;
-        newImageData.data[newIndex] = Math.min(Math.max(sumR, 0), 255);
-        newImageData.data[newIndex + 1] = Math.min(Math.max(sumG, 0), 255);
-        newImageData.data[newIndex + 2] = Math.min(Math.max(sumB, 0), 255);
-        newImageData.data[newIndex + 3] = 255; // Альфа-канал
-      }
+    const newKernel = presets[preset];
+    setKernel(newKernel);
+    if (preview) {
+      onPreview(newKernel);
     }
-
-    return newImageData;
   };
 
-  // Обработчик предпросмотра
   const handlePreview = () => {
-    setPreview((prev) => !prev);
-    if (!preview && imageData) {
-      const filteredImageData = applyFilter(kernel, imageData);
-      setPreviewImageData(filteredImageData);
+    setPreview(!preview);
+    if (!preview) {
+      onPreview(kernel);
     } else {
-      setPreviewImageData(null); // Удалить предпросмотр, если отменяем
+      onReset();
     }
   };
 
-  // Эффект для обновления URL предпросмотра
-  useEffect(() => {
-    if (previewImageData) {
-      const canvas = document.createElement('canvas');
-      canvas.width = previewImageData.width;
-      canvas.height = previewImageData.height;
-      const ctx = canvas.getContext('2d');
-      ctx.putImageData(previewImageData, 0, 0);
-      setPreviewImageUrl(canvas.toDataURL());
-    } else {
-      setPreviewImageUrl(null);
-    }
-  }, [previewImageData]);
-
-  // Обработчик кнопки "Применить"
   const handleApply = () => {
-    if (onApply) {
-      onApply(preview ? previewImageData : kernel);
-      setAppliedKernel(preview ? previewImageData : kernel); // Сохранить применённое ядро
-    }
+    onApply(kernel);
+    setPreview(false);
   };
 
-  // Обработчик сброса
   const handleReset = () => {
-    setKernel(initialKernel); // Вернуть ядро к начальному значению
+    setKernel(initialKernel);
     setPreview(false);
-    setPreviewImageData(null);
-    setPreviewImageUrl(null);
     onReset();
   };
+
+  useEffect(() => {
+    return () => {
+      if (preview) {
+        onReset();
+      }
+    };
+  }, [preview, onReset]);
 
   return (
     <div className="modal">
       <h2>Convolution Filter</h2>
       <table className="kernel-input-grid">
         <tbody>
-          {Array.isArray(kernel) && kernel.map((row, i) => (
+          {kernel.map((row, i) => (
             <tr key={i}>
               {row.map((value, j) => (
                 <td key={`${i}-${j}`}>
@@ -132,6 +84,7 @@ const handleInputChange = (i, j, value) => {
                     type="number"
                     value={value}
                     onChange={(e) => handleInputChange(i, j, e.target.value)}
+                    step="0.01"
                     max={100}
                   />
                 </td>
@@ -158,7 +111,6 @@ const handleInputChange = (i, j, value) => {
           Preview
         </label>
       </div>
-
     </div>
   );
 };
